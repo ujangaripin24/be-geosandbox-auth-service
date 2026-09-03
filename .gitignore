@@ -29,3 +29,5 @@ tmp/
 .env
 .env.*
 /generated/prisma
+*.txt
+*.txt
