@@ -6,6 +6,8 @@ const helmet = require("helmet")
 const createError = require("http-errors")
 const fs = require("fs")
 const path = require("path")
+const database = require('./config/database.config')
+const dataCache = require('./config/data-cache.config')
 
 dotenv.config();
 
@@ -28,10 +30,15 @@ app.get('/', (req, res) => {
     });
 });
 
+app.use((req, res, next) => {
+    res.status(404).json(createError(404, "Not Found Page you looking for"))
+})
+
 app.listen(process.env.APP_PORT, async () => {
     console.log(`[SERVICE-AUTH] Server berjalan di port ${process.env.APP_PORT}`);
     try {
-        console.log("Connected!")
+        await database.authenticate();
+        await dataCache.connect();
     } catch (error) {
         console.error("❌ Unable to start server:");
         console.error(error.message);

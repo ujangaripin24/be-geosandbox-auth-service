@@ -16,6 +16,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      data-cache:
+        condition: service_healthy
 
   db:
     image: postgres:17
@@ -40,8 +42,26 @@ services:
     volumes:
       - db-data:/var/lib/postgresql/data
 
+  data-cache:
+    image: redis:latest
+    container_name: auth_service_data_cache
+    restart: always
+    command: redis-server --requirepass secretredispassword
+    ports:
+      - "6380:6379"
+    expose:
+      - "6379"
+    healthcheck:
+      test: [ "CMD-SHELL", "redis-cli -a secretredispassword ping" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - data-cache-data:/data
+
 volumes:
   db-data:
+  data-cache-data:
 
 secrets:
   db-password:
