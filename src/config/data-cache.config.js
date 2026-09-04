@@ -7,7 +7,7 @@ const host = process.env.DATA_CACHE_HOST || '127.0.0.1';
 const port = process.env.DATA_CACHE_PORT || 6379;
 const password = process.env.DATA_CACHE_PASSWORD;
 
-const client = createClient({
+const RedisClient = createClient({
     username: 'default',
     password: password,
     socket: {
@@ -16,12 +16,12 @@ const client = createClient({
     }
 });
 
-client.on('connect', () => {
+RedisClient.on('connect', () => {
     console.log("Data Cache Redis connected");
 });
 
-client.on('error', (err) => {
+RedisClient.on('error', (err) => {
     console.log("Data Cache Redis error: ", err);
 });
 
-module.exports = client;
+module.exports = RedisClient;

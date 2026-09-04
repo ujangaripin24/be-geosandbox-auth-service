@@ -8,6 +8,7 @@ const fs = require("fs")
 const path = require("path")
 const database = require('./config/database.config')
 const dataCache = require('./config/data-cache.config')
+const authRouter = require('./routes/auth.route')
 
 dotenv.config();
 
@@ -29,6 +30,8 @@ app.get('/', (req, res) => {
         date: dateNow
     });
 });
+
+app.use('/api/v1', authRouter)
 
 app.use((req, res, next) => {
     res.status(404).json(createError(404, "Not Found Page you looking for"))
