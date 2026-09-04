@@ -11,13 +11,16 @@ services:
       - /usr/src/app/node_modules
     env_file:
       - .env
-    ports:
-      - "3610:3610"
+    expose:
+      - "3610"
     depends_on:
       db:
         condition: service_healthy
       data-cache:
         condition: service_healthy
+    networks:
+      - default
+      - global-network-geosandbox
 
   db:
     image: postgres:17
@@ -66,3 +69,8 @@ volumes:
 secrets:
   db-password:
     file: db/password.txt
+
+networks:
+  default:
+  global-network-geosandbox:
+    name: global-network-geosandbox
