@@ -7,7 +7,7 @@ const { authenticateTokenGuard, authenticateTokenRole } = require('../middleware
 
 const router = express.Router();
 
-router.get('/health', (req, res) => {
+router.get('/auth/health', (req, res) => {
   res.status(200).json({
     status: 200,
     message: "[SERVICE-AUTH] Server Berhasil Berjalan",

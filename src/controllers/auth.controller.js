@@ -1,6 +1,6 @@
 const { validationResult } = require("express-validator");
 const { formatError } = require("../pkg/error-formatter.pkg");
-const { RegsiterService, LoginService, ProfileService, RefreshTokenService } = require("../services/auth.services");
+const { RegsiterService, LoginService, ProfileService, RefreshTokenService } = require("../services/auth.service");
 const { generateRegisterToken, verifyRegisterToken, generateLoginToken, verifyRefreshToken, generateRefreshToken } = require("../pkg/jwt/jwt.pkg");
 const { sendActivationEmail } = require("../pkg/nodemailer/mailer.pkg");
 const { TblUsers } = require("../models");
