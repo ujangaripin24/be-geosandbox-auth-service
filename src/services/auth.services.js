@@ -1,4 +1,4 @@
-const { hashPassword, verifyPassword } = require('../pkg/password.pkg')
+const { hashPassword, verifyPassword } = require('../pkg/bcrypt/password.pkg')
 const { TblUsers } = require('../models')
 
 const RegsiterService = async (data) => {

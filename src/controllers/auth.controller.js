@@ -1,10 +1,11 @@
 const { validationResult } = require("express-validator");
 const { formatError } = require("../pkg/error-formatter.pkg");
 const { RegsiterService, LoginService, ProfileService, RefreshTokenService } = require("../services/auth.services");
-const { generateRegisterToken, verifyRegisterToken, generateLoginToken, verifyRefreshToken, generateRefreshToken } = require("../pkg/jwt.pkg");
-const { sendActivationEmail } = require("../pkg/mailer.pkg");
+const { generateRegisterToken, verifyRegisterToken, generateLoginToken, verifyRefreshToken, generateRefreshToken } = require("../pkg/jwt/jwt.pkg");
+const { sendActivationEmail } = require("../pkg/nodemailer/mailer.pkg");
 const { TblUsers } = require("../models");
 const RedisClient = require("../config/data-cache.config");
+const { deliverMessageData } = require("../pkg/message-broker/message-broker.pkg");
 
 const RegisterController = async (req, res, next) => {
     const errors = validationResult(req);
@@ -55,6 +56,8 @@ const ActivationController = async (req, res, next) => {
             return res.status(400).json(formatError("Link aktivasi tidak valid, kedaluwarsa, atau sudah pernah digunakan", "token"));
         }
 
+        const user = await TblUsers.findOne({ where: { uuid: decoded.uuid } });
+
         const [updatedCount] = await TblUsers.update({ isActive: true }, {
             where: { uuid: decoded.uuid }
         });
@@ -63,9 +66,15 @@ const ActivationController = async (req, res, next) => {
             return res.status(400).json(formatError("Akun sudah pernah diaktifkan sebelumnya", "token"));
         }
 
-        console.log("Data berhasil diupdate: ", updatedCount)
+        console.log("Data berhasil diupdate: ", updatedCount);
 
         await RedisClient.del(redisKey);
+
+        await deliverMessageData('user_activated', {
+            uuid_user: decoded.uuid,
+            username: user ? user.username : '',
+            email: user ? user.email : ''
+        });
 
         return res.status(200).json({ message: "Akun berhasil diaktifkan! Silakan login." });
     } catch (error) {

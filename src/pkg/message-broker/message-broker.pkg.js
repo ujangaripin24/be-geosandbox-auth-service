@@ -1,4 +1,4 @@
-const { getChannel } = require('../config/message-broker.config');
+const { getChannel } = require('../../config/message-broker.config');
 
 /**
  * Deliver payload data to a specified RabbitMQ queue

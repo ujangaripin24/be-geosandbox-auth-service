@@ -1,6 +1,6 @@
 const RedisClient = require("../config/data-cache.config");
 const { formatError } = require("../pkg/error-formatter.pkg");
-const { verifyLoginToken } = require("../pkg/jwt.pkg");
+const { verifyLoginToken } = require("../pkg/jwt/jwt.pkg");
 
 const authenticateTokenGuard = async (req, res, next) => {
   const authHeader = req.headers['authorization'];

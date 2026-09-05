@@ -45,7 +45,7 @@ app.listen(process.env.APP_PORT, async () => {
         await dataCache.connect();
         await messageBroker.connectRabbitMQ();
     } catch (error) {
-        console.error("❌ Unable to start server:");
+        console.error("Unable to start server:");
         console.error(error.message);
         process.exit(1);
     }
