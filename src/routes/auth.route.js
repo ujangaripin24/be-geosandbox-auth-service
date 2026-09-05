@@ -7,6 +7,14 @@ const { authenticateTokenGuard, authenticateTokenRole } = require('../middleware
 
 const router = express.Router();
 
+router.get('/health', (req, res) => {
+  res.status(200).json({
+    status: 200,
+    message: "[SERVICE-AUTH] Server Berhasil Berjalan",
+    date: new Date().toISOString().replace('T', ' ').substring(0, 19)
+  });
+});
+
 router.post('/auth/register', RegisterValidation, (req, res, next) => {
   const errors = validationResult(req)
   if (!errors.isEmpty()) {
