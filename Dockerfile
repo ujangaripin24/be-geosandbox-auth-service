@@ -5,6 +5,7 @@ FROM node:${NODE_VERSION}-alpine
 ENV NODE_ENV=production
 
 WORKDIR /usr/src/app
+RUN mkdir -p /usr/src/app/src/logs
 
 # Copy package files
 COPY package*.json ./
