@@ -71,7 +71,7 @@ const ActivationController = async (req, res, next) => {
         await RedisClient.del(redisKey);
 
         await deliverMessageData('user_activated', {
-            uuid_user: decoded.uuid,
+            uuid: decoded.uuid,
             username: user ? user.username : '',
             email: user ? user.email : ''
         });

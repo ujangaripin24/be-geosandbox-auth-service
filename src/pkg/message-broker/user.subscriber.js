@@ -3,57 +3,54 @@ const { TblUsers } = require("../../models");
 
 /**
  * Listens to 'user_update' queue from RabbitMQ
- * and creates a new TblUsers record in database.
+ * and updates username/email in TblUsers record in auth database.
  */
-const listenUserActivatedQueue = async () => {
+const listenUserUpdatedQueue = async () => {
   try {
     await reciverMessageData("user_update", async (msg) => {
       if (!msg) return;
       try {
         const payload = JSON.parse(msg.content.toString());
         console.log(
-          "[user-service] Received 'user_update' payload:",
+          "[auth-service] Received 'user_update' payload:",
           payload,
         );
-
-        const { uuid, username, email } = payload;
-        if (!uuid) {
-          console.warn("[user-service] Missing uuid in message payload");
-          return;
-        }
-
-        const existingDetail = await TblUsers.findOne({
+        const user = await TblUsers.findOne({
           where: { uuid },
         });
-        if (!existingDetail) {
-          await TblUsers.create({
-            uuid: uuid,
-            username: username,
-            email: email
-          });
-          console.log(
-            `[user-service] Successfully created TblUsers record for uuid: ${uuid}`,
-          );
+
+        if (user) {
+          const updateData = {};
+          if (username) updateData.username = username;
+          if (email) updateData.email = email;
+
+          if (Object.keys(updateData).length > 0) {
+            await user.update(updateData);
+            console.log(
+              `[auth-service] Successfully updated TblUsers for uuid: ${targetUuid}`,
+              updateData
+            );
+          }
         } else {
-          console.log(
-            `[user-service] TblUsers record for uuid ${uuid} already exists.`,
+          console.warn(
+            `[auth-service] TblUsers record for uuid ${targetUuid} not found.`
           );
         }
       } catch (err) {
         console.error(
-          "[user-service] Error processing 'user_update' message:",
+          "[auth-service] Error processing 'user_update' message:",
           err.message,
         );
       }
     });
   } catch (error) {
     console.error(
-      "[user-service] Failed to start 'user_update' listener:",
+      "[auth-service] Failed to start 'user_update' listener:",
       error.message,
     );
   }
 };
 
 module.exports = {
-  listenUserActivatedQueue,
+  listenUserUpdatedQueue,
 };
