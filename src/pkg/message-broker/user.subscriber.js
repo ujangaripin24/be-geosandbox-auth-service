@@ -15,6 +15,13 @@ const listenUserUpdatedQueue = async () => {
           "[auth-service] Received 'user_update' payload:",
           payload,
         );
+        const { uuid, username, email } = payload;
+
+        if (!uuid) {
+          console.warn("[auth-service] Missing uuid in message payload");
+          return;
+        }
+
         const user = await TblUsers.findOne({
           where: { uuid },
         });

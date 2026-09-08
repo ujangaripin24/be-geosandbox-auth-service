@@ -10,6 +10,7 @@ const database = require("./config/database.config");
 const dataCache = require("./config/data-cache.config");
 const authRouter = require("./routes/auth.route");
 const messageBroker = require("./config/message-broker.config");
+const { listenUserUpdatedQueue } = require("./pkg/message-broker/user.subscriber");
 
 dotenv.config();
 
@@ -44,6 +45,7 @@ app.listen(process.env.APP_PORT, async () => {
     await database.authenticate();
     await dataCache.connect();
     await messageBroker.connectRabbitMQ();
+    await listenUserUpdatedQueue();
   } catch (error) {
     console.error("Unable to start server:");
     console.error(error.message);
