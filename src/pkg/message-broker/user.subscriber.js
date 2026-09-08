@@ -1,55 +1,59 @@
-const { getChannel } = require("../../config/message-broker.config");
+const { reciverMessageData } = require("./message-broker.pkg");
+const { TblUsers } = require("../../models");
 
 /**
- * Deliver payload data to a specified RabbitMQ queue
- * @param {string} queueName - Target Queue Name
- * @param {object|string} payload - Payload object or string
+ * Listens to 'user_update' queue from RabbitMQ
+ * and creates a new TblUsers record in database.
  */
-const deliverMessageData = async (queueName, payload) => {
+const listenUserActivatedQueue = async () => {
   try {
-    const channel = getChannel();
-    if (!channel) {
-      throw new Error("RabbitMQ channel is not initialized or connected yet.");
-    }
+    await reciverMessageData("user_update", async (msg) => {
+      if (!msg) return;
+      try {
+        const payload = JSON.parse(msg.content.toString());
+        console.log(
+          "[user-service] Received 'user_update' payload:",
+          payload,
+        );
 
-    await channel.assertQueue(queueName, { durable: true });
+        const { uuid, username, email } = payload;
+        if (!uuid) {
+          console.warn("[user-service] Missing uuid in message payload");
+          return;
+        }
 
-    const messageBuffer = Buffer.from(
-      typeof payload === "string" ? payload : JSON.stringify(payload),
-    );
-
-    channel.sendToQueue(queueName, messageBuffer, { persistent: true });
-    console.log(`[RabbitMQ] Message delivered to queue '${queueName}'`);
-    return true;
+        const existingDetail = await TblUsers.findOne({
+          where: { uuid },
+        });
+        if (!existingDetail) {
+          await TblUsers.create({
+            uuid: uuid,
+            username: username,
+            email: email
+          });
+          console.log(
+            `[user-service] Successfully created TblUsers record for uuid: ${uuid}`,
+          );
+        } else {
+          console.log(
+            `[user-service] TblUsers record for uuid ${uuid} already exists.`,
+          );
+        }
+      } catch (err) {
+        console.error(
+          "[user-service] Error processing 'user_update' message:",
+          err.message,
+        );
+      }
+    });
   } catch (error) {
     console.error(
-      `[RabbitMQ] Failed to deliver message to '${queueName}':`,
+      "[user-service] Failed to start 'user_update' listener:",
       error.message,
     );
-    throw error;
   }
 };
 
-const reciverMessageData = async (queueName, callback) => {
-  try {
-    const channel = getChannel();
-    if (!channel) {
-      throw new Error("RabbitMQ channel is not initialized or connected yet.");
-    }
-
-    await channel.assertQueue(queueName, { durable: true });
-    channel.consume(queueName, (msg) => {
-      if (msg) {
-        callback(msg);
-      }
-    });
-    console.log(`[RabbitMQ] Waiting for messages on queue '${queueName}'`);
-    return true;
-  } catch (error) {
-    console.error(
-      `[RabbitMQ] Failed to receive messages from queue '${queueName}':`,
-      error.message,
-    );
-    throw error;
-  }
+module.exports = {
+  listenUserActivatedQueue,
 };
