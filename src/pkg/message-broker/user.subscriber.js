@@ -34,13 +34,13 @@ const listenUserUpdatedQueue = async () => {
           if (Object.keys(updateData).length > 0) {
             await user.update(updateData);
             console.log(
-              `[auth-service] Successfully updated TblUsers for uuid: ${targetUuid}`,
+              `[auth-service] Successfully updated TblUsers for uuid: ${uuid}`,
               updateData
             );
           }
         } else {
           console.warn(
-            `[auth-service] TblUsers record for uuid ${targetUuid} not found.`
+            `[auth-service] TblUsers record for uuid ${uuid} not found.`
           );
         }
       } catch (err) {
