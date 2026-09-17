@@ -11,43 +11,75 @@ const rabbitmqPassword = process.env.RABBITMQ_PASSWORD || 'guest';
 
 let connection = null;
 let channel = null;
+let connecting = null;
+let reconnectTimer = null;
+const channelReadyListeners = new Set();
 
 const connectRabbitMQ = async () => {
     if (channel) return { connection, channel };
+    if (connecting) return connecting;
 
-    try {
+    connecting = (async () => {
+      try {
         const url = `amqp://${rabbitmqUser}:${rabbitmqPassword}@${rabbitmqHost}:${rabbitmqPort}`;
-        connection = await amqplib.connect(url);
-        channel = await connection.createChannel();
+        const nextConnection = await amqplib.connect(url);
+        const nextChannel = await nextConnection.createChannel();
+        connection = nextConnection;
+        channel = nextChannel;
 
         console.log("RabbitMQ connected and channel created");
 
-        connection.on('error', (err) => {
+        nextConnection.on('error', (err) => {
             console.error("RabbitMQ connection error event triggered:", err.message);
-            handleDisconnect();
+            handleDisconnect(nextConnection, nextChannel);
         });
 
-        connection.on('close', () => {
+        nextConnection.on('close', () => {
             console.warn("RabbitMQ connection closed. Attempting reconnect...");
-            handleDisconnect();
+            handleDisconnect(nextConnection, nextChannel);
         });
 
-        return { connection, channel };
-    } catch (error) {
+        for (const listener of channelReadyListeners) {
+          await listener(nextChannel);
+        }
+
+        return { connection: nextConnection, channel: nextChannel };
+      } catch (error) {
         console.error("RabbitMQ initialization failed: ", error.message);
-        setTimeout(connectRabbitMQ, 5000);
-    }
+        scheduleReconnect();
+        return null;
+      } finally {
+        connecting = null;
+      }
+    })();
+
+    return connecting;
 }
 
-function handleDisconnect() {
+function handleDisconnect(disconnectedConnection, disconnectedChannel) {
+    if (connection !== disconnectedConnection || channel !== disconnectedChannel) return;
     connection = null;
     channel = null;
-    setTimeout(connectRabbitMQ, 5000);
+    scheduleReconnect();
+}
+
+function scheduleReconnect() {
+    if (reconnectTimer) return;
+    reconnectTimer = setTimeout(() => {
+        reconnectTimer = null;
+        connectRabbitMQ();
+    }, 5000);
 }
 
 const getChannel = () => channel;
 
+const onChannelReady = (listener) => {
+    channelReadyListeners.add(listener);
+    return () => channelReadyListeners.delete(listener);
+};
+
 module.exports = {
     connectRabbitMQ,
-    getChannel
+    getChannel,
+    onChannelReady,
 }
