@@ -12,14 +12,16 @@ const deliverMessageData = async (queueName, payload) => {
       throw new Error("RabbitMQ channel is not initialized or connected yet.");
     }
 
-    await channel.assertQueue(queueName, { durable: true });
-
     const messageBuffer = Buffer.from(
       typeof payload === "string" ? payload : JSON.stringify(payload),
     );
 
-    channel.sendToQueue(queueName, messageBuffer, { persistent: true });
-    console.log(`[RabbitMQ] Message delivered to queue '${queueName}'`);
+    const queueNames = Array.isArray(queueName) ? queueName : [queueName];
+    for (const targetQueue of queueNames) {
+      await channel.assertQueue(targetQueue, { durable: true });
+      channel.sendToQueue(targetQueue, messageBuffer, { persistent: true });
+      console.log(`[RabbitMQ] Message delivered to queue '${targetQueue}'`);
+    }
     return true;
   } catch (error) {
     console.error(
