@@ -1,0 +1,117 @@
+{
+	"info": {
+		"_postman_id": "01c08b26-fa17-410b-8d27-2769c635f829",
+		"name": "be-geosandbox-auth-service",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "21807576",
+		"_collection_link": "https://blue-rocket-102937.postman.co/workspace/My-Workspace~09f9e03d-cd71-4a80-83f3-6765d15cbdb6/collection/21807576-01c08b26-fa17-410b-8d27-2769c635f829?action=share&source=collection_link&creator=21807576"
+	},
+	"item": [
+		{
+			"name": "login Copy",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"email\": \"l686unnogv@olipii.com\",\n    \"password\": \"123456789\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8000/api/v1/auth/login",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"v1",
+						"auth",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "refresh token Copy",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"refreshToken\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1dWlkIjoiMjUwZGNlODQtMDY5Ni00N2NiLWE1ZGMtNjZhOTgyOGI4ZTVjIiwiZW1haWwiOiJsNjg2dW5ub2d2QG9saXBpaS5jb20iLCJyb2xlIjoidXNlciIsImlhdCI6MTc5MDA0MzU5MCwiZXhwIjoxNzkwNjQ4MzkwfQ.VsET38xCnZkdrC_ecma7ANLu8n25KuCLBG0wlvf09wI\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8000/api/v1/auth/refresh-token",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"v1",
+						"auth",
+						"refresh-token"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "logout Copy",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1dWlkIjoiMjUwZGNlODQtMDY5Ni00N2NiLWE1ZGMtNjZhOTgyOGI4ZTVjIiwiZW1haWwiOiJsNjg2dW5ub2d2QG9saXBpaS5jb20iLCJyb2xlIjoidXNlciIsImlhdCI6MTc5MDA0NDc1MiwiZXhwIjoxNzkwMDQ1NjUyfQ.GQ7ITb_hXtaOOIzcHLDggTOQXAVA8xfNXiNtzdk6y9Q",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8000/api/v1/auth/logout",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"v1",
+						"auth",
+						"logout"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
