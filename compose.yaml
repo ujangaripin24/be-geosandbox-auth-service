@@ -13,6 +13,12 @@ services:
       - .env
     expose:
       - "3610"
+    deploy:
+      resources:
+        limits:
+          memory: 512M # Batasi maksimal 512MB RAM
+        reservations:
+          memory: 256M # Alokasi awal 256MB RAM
     networks:
       - global-network-geosandbox
 
