@@ -1,0 +1,7 @@
+# Use this workspace to collaborate
+workspace:
+  id: 1dd274fe-7dea-4b2b-ba68-8a1f37ffaf56
+
+localResources:
+  collections:
+    - ../Collection/be-geosandbox-auth-service.postman_collection.json
