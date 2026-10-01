@@ -1,0 +1,7 @@
+$kind: http-request
+description: ""
+url: http://localhost:8000/api/v1/auth/activation?token=
+method: GET
+queryParams:
+  token: ""
+order: 1601831170662773

@@ -1,0 +1,14 @@
+$kind: http-request
+description: ""
+url: http://localhost:8000/api/v1/auth/login
+method: POST
+body:
+  type: json
+  content: "{\r
+
+    \    \"email\": \"ninanoj924@cwsgear.com\",\r
+
+    \    \"password\": \"123456789\"\r
+
+    }"
+order: 4221309819774300

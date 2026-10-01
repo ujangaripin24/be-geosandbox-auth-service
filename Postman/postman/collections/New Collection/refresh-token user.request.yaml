@@ -1,0 +1,12 @@
+$kind: http-request
+description: ""
+url: http://localhost:8000/api/v1/auth/refresh-token
+method: POST
+body:
+  type: json
+  content: "{\r
+
+    \    \"refreshToken\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1dWlkIjoiMjUwZGNlODQtMDY5Ni00N2NiLWE1ZGMtNjZhOTgyOGI4ZTVjIiwiZW1haWwiOiJsNjg2dW5ub2d2QG9saXBpaS5jb20iLCJyb2xlIjoidXNlciIsImlhdCI6MTc5MDA0MzU5MCwiZXhwIjoxNzkwNjQ4MzkwfQ.VsET38xCnZkdrC_ecma7ANLu8n25KuCLBG0wlvf09wI\"\r
+
+    }"
+order: 4448170561617831
