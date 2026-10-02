@@ -6,8 +6,24 @@ const LoginValidator = [
 ]
 
 const RefreshTokenValidator = [
-    body('refreshToken').notEmpty().withMessage("Refresh token tidak boleh kosong"),
-]
+    (req, res, next) => {
+        const token = req.cookies?.refreshToken || req.body?.refreshToken;
+        if (!token) {
+            return res.status(400).json({
+                errors: [
+                    {
+                        type: "field",
+                        value: "",
+                        msg: "Refresh token tidak boleh kosong",
+                        path: "refreshToken",
+                        location: "body/cookie"
+                    }
+                ]
+            });
+        }
+        next();
+    }
+];
 
 module.exports = {
     LoginValidator,

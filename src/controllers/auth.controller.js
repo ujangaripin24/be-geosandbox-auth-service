@@ -90,13 +90,34 @@ const LoginController = async (req, res, next) => {
     }
 
     let body = req.body;
-    console.log("Login Controller: ", body)
+    const clientType = (req.headers['x-client-type'] || 'web').toLowerCase();
+    console.log(`Login Controller [Client: ${clientType}]:`, body.email);
+
     try {
         let user = await LoginService(body.email, body.password);
         let token = generateLoginToken(user);
         let refreshToken = generateRefreshToken(user);
-        await RedisClient.set(`refresh_token:${user.uuid}`, refreshToken)
-        return res.status(200).json({ message: "Login Sukses", data: { token, refreshToken } });
+
+        await RedisClient.set(`refresh_token:${user.uuid}`, refreshToken);
+
+        if (clientType === 'web') {
+            res.cookie('refreshToken', refreshToken, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === 'production',
+                sameSite: 'strict',
+                maxAge: 7 * 24 * 60 * 60 * 1000 // 7 hari
+            });
+
+            return res.status(200).json({
+                message: "Login Sukses",
+                data: { token }
+            });
+        }
+
+        return res.status(200).json({
+            message: "Login Sukses",
+            data: { token, refreshToken }
+        });
     } catch (error) {
         if (error.message === "Email atau password salah" || error.message === "Akun belum diaktifkan") {
             return res.status(401).json(formatError(error.message, "message"));
@@ -106,8 +127,8 @@ const LoginController = async (req, res, next) => {
 }
 
 const ProfileController = async (req, res, next) => {
-    let uuid = req.user.uuid
-    console.log("Profile Controller: ", uuid)
+    let uuid = req.user.uuid;
+    console.log("Profile Controller: ", uuid);
 
     try {
         let user = await ProfileService(uuid);
@@ -123,7 +144,12 @@ const RefreshController = async (req, res, next) => {
         return res.status(400).json({ errors: errors.array() });
     }
 
-    let { refreshToken } = req.body;
+    const refreshToken = req.cookies?.refreshToken || req.body?.refreshToken;
+
+    if (!refreshToken) {
+        return res.status(400).json(formatError("Refresh token tidak ditemukan", "refreshToken"));
+    }
+
     try {
         let decoded = verifyRefreshToken(refreshToken);
         let savedToken = await RedisClient.get(`refresh_token:${decoded.uuid}`);
@@ -146,6 +172,13 @@ const LogoutController = async (req, res, next) => {
     let uuid = req.user.uuid;
     try {
         await RedisClient.del(`refresh_token:${uuid}`);
+
+        res.clearCookie('refreshToken', {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict'
+        });
+
         return res.status(200).json({ message: "Logout success" });
     } catch (error) {
         res.status(500).json(formatError(error.message, "server"));

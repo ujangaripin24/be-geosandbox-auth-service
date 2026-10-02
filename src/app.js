@@ -12,6 +12,8 @@ const authRouter = require("./routes/auth.route");
 const messageBroker = require("./config/message-broker.config");
 const { listenUserUpdatedQueue } = require("./pkg/message-broker/user.subscriber");
 
+const cookieParser = require("cookie-parser");
+
 dotenv.config();
 
 let app = express();
@@ -24,6 +26,7 @@ app.use(logger("dev"));
 // app.use(logger('combined', { stream: accessLogStream }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 
 app.get("/", (req, res) => {
   res.status(200).json({
