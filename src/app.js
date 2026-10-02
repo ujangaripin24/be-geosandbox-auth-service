@@ -11,7 +11,6 @@ const dataCache = require("./config/data-cache.config");
 const authRouter = require("./routes/auth.route");
 const messageBroker = require("./config/message-broker.config");
 const { listenUserUpdatedQueue } = require("./pkg/message-broker/user.subscriber");
-
 const cookieParser = require("cookie-parser");
 
 dotenv.config();
@@ -21,7 +20,11 @@ let app = express();
 let dateNow = new Date().toISOString().replace("T", " ").substring(0, 19);
 
 app.use(helmet());
-app.use(cors());
+app.use(cors({
+  origin: ["http://localhost:5173", "http://localhost:3000"],
+  credentials: true,
+  allowedHeaders: ["Content-Type", "Authorization", "X-Client-Type"]
+}));
 app.use(logger("dev"));
 // app.use(logger('combined', { stream: accessLogStream }));
 app.use(express.json());
