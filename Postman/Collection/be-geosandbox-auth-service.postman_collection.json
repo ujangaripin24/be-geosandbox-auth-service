@@ -14,7 +14,7 @@
         "header": [],
         "body": {
           "mode": "raw",
-          "raw": "{\n    \"email\": \"jej0f8vako@ruutukf.com\",\n    \"password\": \"123456789\"\n}",
+          "raw": "{\n    \"email\": \"jej0f8vako@ruutukfs.com\",\n    \"password\": \"123456789\"\n}",
           "options": {
             "raw": {
               "language": "json"
@@ -80,7 +80,7 @@
           "bearer": [
             {
               "key": "token",
-              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1dWlkIjoiMjUwZGNlODQtMDY5Ni00N2NiLWE1ZGMtNjZhOTgyOGI4ZTVjIiwiZW1haWwiOiJsNjg2dW5ub2d2QG9saXBpaS5jb20iLCJyb2xlIjoidXNlciIsImlhdCI6MTc5MDA0NDc1MiwiZXhwIjoxNzkwMDQ1NjUyfQ.GQ7ITb_hXtaOOIzcHLDggTOQXAVA8xfNXiNtzdk6y9Q",
+              "value": "",
               "type": "string"
             }
           ]
@@ -167,6 +167,38 @@
               "key": "token",
               "value": ""
             }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "profile",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8000/api/v1/auth/profile",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8000",
+          "path": [
+            "api",
+            "v1",
+            "auth",
+            "profile"
           ]
         }
       },
