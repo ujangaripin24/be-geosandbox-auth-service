@@ -16,7 +16,19 @@ data "docker_network" "local_network" {
 }
 
 resource "docker_image" "app_image" {
-  name = "be-geosandbox-auth-service:latest"
+  name         = "be-geosandbox-auth-service:latest"
+  keep_locally = true
+
+  triggers = {
+    dir_sha1 = sha1(join("", [
+      for f in sort(setunion(
+        fileset("${path.module}/../..", "src/**"),
+        fileset("${path.module}/../..", "package*.json"),
+        fileset("${path.module}/../..", "Dockerfile")
+      )) : filesha1("${path.module}/../../${f}")
+    ]))
+  }
+
   build {
     context    = abspath("${path.module}/../..")
     dockerfile = "Dockerfile"
@@ -37,11 +49,6 @@ resource "docker_container" "app" {
 
   networks_advanced {
     name = data.docker_network.local_network.name
-  }
-
-  ports {
-    internal = 3610
-    external = 3610
   }
 
   env = [

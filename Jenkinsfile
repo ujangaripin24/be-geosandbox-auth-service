@@ -19,6 +19,7 @@ pipeline {
                 }
             }
         }
+        
         stage('📥 Load Environment (.env)') {
             when {
                 expression {
