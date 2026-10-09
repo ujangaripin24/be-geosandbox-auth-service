@@ -19,6 +19,38 @@ pipeline {
                 }
             }
         }
+
+        stage('🧪 Run Unit Tests') {
+            steps {
+                echo "🚀 Menjalankan Unit Testing dengan Jest..."
+                sh '''
+                    # Jalankan unit test di dalam container node:24-alpine
+                    docker run --rm \
+                        -u $(id -u):$(id -g) \
+                        --volumes-from global-jenkins-cicd \
+                        -w ${WORKSPACE} \
+                        node:24-alpine \
+                        sh -c "npm ci && npm test"
+                '''
+            }
+            post {
+                always {
+                    sh '''
+                        docker run --rm \
+                            --volumes-from global-jenkins-cicd \
+                            -w ${WORKSPACE} \
+                            node:24-alpine \
+                            rm -rf node_modules || true
+                    '''
+                }
+                success {
+                    echo "✅ Semua Unit Test LULUS! Melanjutkan ke proses deployment..."
+                }
+                failure {
+                    echo "❌ Unit Test GAGAL! Deployment dibatalkan demi keamanan."
+                }
+            }
+        }
         
         stage('📥 Load Environment (.env)') {
             when {
