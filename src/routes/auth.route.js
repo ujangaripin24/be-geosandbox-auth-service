@@ -3,6 +3,7 @@ const {
   RegisterValidation,
   ForgetPasswordValidation,
   UpdatePasswordValidation,
+  ResendActivationValidation,
 } = require("../validations/auth.validation");
 const {
   RegisterController,
@@ -13,6 +14,7 @@ const {
   LogoutController,
   SendMsgForgetPasswordController,
   UpdatePasswordUserController,
+  ResendActivationController,
 } = require("../controllers/auth.controller");
 const { validationResult } = require("express-validator");
 const {
@@ -52,6 +54,14 @@ router.post(
 );
 
 router.get("/auth/activation", ActivationController);
+
+router.post(
+  "/auth/resend-activation",
+  ResendActivationValidation,
+  handleValidation,
+  ResendActivationController,
+);
+
 
 router.post("/auth/login", LoginValidator, handleValidation, LoginController);
 

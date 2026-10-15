@@ -46,6 +46,15 @@ jest.mock("../src/controllers/auth.controller", () => ({
       },
     }),
   ),
+  ResendActivationController: jest.fn((req, res) =>
+    res.status(200).json({
+      message: "Link aktivasi baru telah dikirim ke email Anda. Silakan cek inbox Anda.",
+      data: {
+        message: "Email aktivasi berhasil dikirim ulang",
+        email: req.body.email,
+      },
+    }),
+  ),
   UpdatePasswordUserController: jest.fn((req, res) =>
     res.status(200).json({
       message: "Password berhasil diperbarui. Silakan login kembali dengan password baru.",
@@ -91,6 +100,7 @@ const {
   LogoutController,
   SendMsgForgetPasswordController,
   UpdatePasswordUserController,
+  ResendActivationController,
 } = require("../src/controllers/auth.controller");
 const authRouter = require("../src/routes/auth.route");
 
@@ -184,6 +194,38 @@ describe("Auth Routes & Validations Unit Testing", () => {
 
       expect(res.status).toBe(200);
       expect(ActivationController).toHaveBeenCalledTimes(1);
+    });
+  });
+
+
+  describe("POST /auth/resend-activation (Validation & Controller)", () => {
+    it("harus mengembalikan 400 jika email kosong", async () => {
+      const res = await request(app).post("/auth/resend-activation").send({
+        email: "",
+      });
+
+      expect(res.status).toBe(400);
+      expect(res.body).toHaveProperty("errors");
+      expect(ResendActivationController).not.toHaveBeenCalled();
+    });
+
+    it("harus mengembalikan 400 jika format email tidak valid", async () => {
+      const res = await request(app).post("/auth/resend-activation").send({
+        email: "format-email-salah",
+      });
+
+      expect(res.status).toBe(400);
+      expect(res.body).toHaveProperty("errors");
+      expect(ResendActivationController).not.toHaveBeenCalled();
+    });
+
+    it("harus memanggil ResendActivationController dan mengembalikan 200 jika email valid", async () => {
+      const res = await request(app).post("/auth/resend-activation").send({
+        email: "unverified@example.com",
+      });
+
+      expect(res.status).toBe(200);
+      expect(ResendActivationController).toHaveBeenCalledTimes(1);
     });
   });
 

@@ -1,10 +1,14 @@
 const { hashPassword, verifyPassword } = require("../pkg/bcrypt/password.pkg");
 const { TblUsers } = require("../models");
 const {
+  generateRegisterToken,
   generateResetPasswordToken,
   verifyResetPasswordToken,
 } = require("../pkg/jwt/jwt.pkg");
-const { sendResetPasswordEmail } = require("../pkg/nodemailer/mailer.pkg");
+const {
+  sendActivationEmail,
+  sendResetPasswordEmail,
+} = require("../pkg/nodemailer/mailer.pkg");
 const RedisClient = require("../config/data-cache.config");
 
 const RegsiterService = async (data) => {
@@ -145,6 +149,33 @@ const UpdatePasswordUserService = async ({ token, password }) => {
   };
 };
 
+
+const ResendActivationService = async (email) => {
+  const user = await TblUsers.findOne({ where: { email } });
+  if (!user) {
+    throw new Error("Email tidak terdaftar");
+  }
+
+  if (user.isActive) {
+    throw new Error("Akun sudah diaktifkan, silakan login");
+  }
+
+  const token = generateRegisterToken({
+    uuid: user.uuid,
+    email: user.email,
+  });
+
+  const redisKey = `activation_account:${token}`;
+  await RedisClient.set(redisKey, "unused", { EX: 300 });
+
+  await sendActivationEmail(user.email, token);
+
+  return {
+    message: "Email aktivasi berhasil dikirim ulang",
+    email: user.email,
+  };
+};
+
 module.exports = {
   RegsiterService,
   LoginService,
@@ -152,4 +183,5 @@ module.exports = {
   RefreshTokenService,
   SendMsgForgetPasswordService,
   UpdatePasswordUserService,
+  ResendActivationService,
 };

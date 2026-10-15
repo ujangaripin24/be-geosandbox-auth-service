@@ -7,6 +7,7 @@ const {
   RefreshTokenService,
   SendMsgForgetPasswordService,
   UpdatePasswordUserService,
+  ResendActivationService,
 } = require("../services/auth.service");
 const {
   generateRegisterToken,
@@ -258,6 +259,33 @@ const UpdatePasswordUserController = async (req, res, next) => {
     }
 };
 
+
+const ResendActivationController = async (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
+
+    const { email } = req.body;
+
+    try {
+        const result = await ResendActivationService(email);
+        return res.status(200).json({
+            message: "Link aktivasi baru telah dikirim ke email Anda. Silakan cek inbox Anda.",
+            data: result
+        });
+    } catch (error) {
+        console.error("Error in ResendActivationController:", error.message);
+        if (error.message === "Email tidak terdaftar") {
+            return res.status(404).json(formatError(error.message, "email"));
+        }
+        if (error.message === "Akun sudah diaktifkan, silakan login") {
+            return res.status(400).json(formatError(error.message, "email"));
+        }
+        return res.status(500).json(formatError(error.message, "server"));
+    }
+};
+
 module.exports = {
     RegisterController,
     ActivationController,
@@ -267,4 +295,5 @@ module.exports = {
     LogoutController,
     SendMsgForgetPasswordController,
     UpdatePasswordUserController,
+    ResendActivationController,
 };

@@ -51,8 +51,16 @@ const UpdatePasswordValidation = [
         }),
 ];
 
+
+const ResendActivationValidation = [
+    body("email")
+        .notEmpty().withMessage("Email tidak boleh kosong")
+        .isEmail().withMessage("Email tidak valid"),
+];
+
 module.exports = {
     RegisterValidation,
     ForgetPasswordValidation,
     UpdatePasswordValidation,
+    ResendActivationValidation,
 };

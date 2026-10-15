@@ -14,7 +14,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"email\": \"fohofey294@goldlicai.com\",\n    \"password\": \"ujang123\"\n}",
+					"raw": "{\n    \"email\": \"moximak966@ensproxy.com\",\n    \"password\": \"123456789\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -120,7 +120,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"username\": \"fohofey294\",\r\n    \"email\": \"fohofey294@goldlicai.com\",\r\n    \"password\": \"123456789\",\r\n    \"confPassword\": \"123456789\"\r\n}",
+					"raw": "{\r\n    \"username\": \"moximak966\",\r\n    \"email\": \"moximak966@ensproxy.com\",\r\n    \"password\": \"123456789\",\r\n    \"confPassword\": \"123456789\"\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -150,7 +150,7 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "https://localhost:8000/api/v1/auth/activation?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1dWlkIjoiYjZiOWEzNmUtYTkxZC00ZDI1LTlkNjUtOGE4ZDhmZDcxMmVhIiwiZW1haWwiOiJmb2hvZmV5Mjk0QGdvbGRsaWNhaS5jb20iLCJpYXQiOjE3OTIwMzUyMjcsImV4cCI6MTc5MjAzNTUyN30.IHL8nT6GBTgtupczn2XiOU4Uaf37AwNxTrzsIzNHgXw",
+					"raw": "https://localhost:8000/api/v1/auth/activation?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1dWlkIjoiZmJjMDVkZDAtMWU0YS00NmEwLWIwODMtNjA0NWI3MTM3ZDQ2IiwiZW1haWwiOiJtb3hpbWFrOTY2QGVuc3Byb3h5LmNvbSIsImlhdCI6MTc5MjA0OTE0MywiZXhwIjoxNzkyMDQ5NDQzfQ.SQgKbEydYqsRF4oN_oUq6waPsvkDF9fMjlmR0U_088c",
 					"protocol": "https",
 					"host": [
 						"localhost"
@@ -165,7 +165,7 @@
 					"query": [
 						{
 							"key": "token",
-							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1dWlkIjoiYjZiOWEzNmUtYTkxZC00ZDI1LTlkNjUtOGE4ZDhmZDcxMmVhIiwiZW1haWwiOiJmb2hvZmV5Mjk0QGdvbGRsaWNhaS5jb20iLCJpYXQiOjE3OTIwMzUyMjcsImV4cCI6MTc5MjAzNTUyN30.IHL8nT6GBTgtupczn2XiOU4Uaf37AwNxTrzsIzNHgXw"
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1dWlkIjoiZmJjMDVkZDAtMWU0YS00NmEwLWIwODMtNjA0NWI3MTM3ZDQ2IiwiZW1haWwiOiJtb3hpbWFrOTY2QGVuc3Byb3h5LmNvbSIsImlhdCI6MTc5MjA0OTE0MywiZXhwIjoxNzkyMDQ5NDQzfQ.SQgKbEydYqsRF4oN_oUq6waPsvkDF9fMjlmR0U_088c"
 						}
 					]
 				}
@@ -269,6 +269,14 @@
 						}
 					]
 				}
+			},
+			"response": []
+		},
+		{
+			"name": "resend activation",
+			"request": {
+				"method": "GET",
+				"header": []
 			},
 			"response": []
 		}
