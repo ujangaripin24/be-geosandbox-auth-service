@@ -62,7 +62,6 @@ router.post(
   ResendActivationController,
 );
 
-
 router.post("/auth/login", LoginValidator, handleValidation, LoginController);
 
 router.post(
