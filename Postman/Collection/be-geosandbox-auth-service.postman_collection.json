@@ -1,208 +1,276 @@
 {
-  "info": {
-    "_postman_id": "01c08b26-fa17-410b-8d27-2769c635f829",
-    "name": "be-geosandbox-auth-service",
-    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-    "_exporter_id": "21807576",
-    "_collection_link": "https://go.postman.co/collection/21807576-01c08b26-fa17-410b-8d27-2769c635f829?source=collection_link"
-  },
-  "item": [
-    {
-      "name": "login Copy",
-      "request": {
-        "method": "POST",
-        "header": [],
-        "body": {
-          "mode": "raw",
-          "raw": "{\n    \"email\": \"miper76858@cwsgear.com\",\n    \"password\": \"123456789\"\n}",
-          "options": {
-            "raw": {
-              "language": "json"
-            }
-          }
-        },
-        "url": {
-          "raw": "http://localhost:8000/api/v1/auth/login",
-          "protocol": "http",
-          "host": [
-            "localhost"
-          ],
-          "port": "8000",
-          "path": [
-            "api",
-            "v1",
-            "auth",
-            "login"
-          ]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "refresh token Copy",
-      "request": {
-        "auth": {
-          "type": "noauth"
-        },
-        "method": "POST",
-        "header": [],
-        "body": {
-          "mode": "raw",
-          "raw": "{\n    \"refreshToken\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1dWlkIjoiMjUwZGNlODQtMDY5Ni00N2NiLWE1ZGMtNjZhOTgyOGI4ZTVjIiwiZW1haWwiOiJsNjg2dW5ub2d2QG9saXBpaS5jb20iLCJyb2xlIjoidXNlciIsImlhdCI6MTc5MDA0MzU5MCwiZXhwIjoxNzkwNjQ4MzkwfQ.VsET38xCnZkdrC_ecma7ANLu8n25KuCLBG0wlvf09wI\"\n}",
-          "options": {
-            "raw": {
-              "language": "json"
-            }
-          }
-        },
-        "url": {
-          "raw": "http://localhost:8000/api/v1/auth/refresh-token",
-          "protocol": "http",
-          "host": [
-            "localhost"
-          ],
-          "port": "8000",
-          "path": [
-            "api",
-            "v1",
-            "auth",
-            "refresh-token"
-          ]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "logout Copy",
-      "request": {
-        "auth": {
-          "type": "bearer",
-          "bearer": [
-            {
-              "key": "token",
-              "value": "",
-              "type": "string"
-            }
-          ]
-        },
-        "method": "POST",
-        "header": [],
-        "body": {
-          "mode": "raw",
-          "raw": "",
-          "options": {
-            "raw": {
-              "language": "json"
-            }
-          }
-        },
-        "url": {
-          "raw": "http://localhost:8000/api/v1/auth/logout",
-          "protocol": "http",
-          "host": [
-            "localhost"
-          ],
-          "port": "8000",
-          "path": [
-            "api",
-            "v1",
-            "auth",
-            "logout"
-          ]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "register",
-      "request": {
-        "method": "POST",
-        "header": [],
-        "body": {
-          "mode": "raw",
-          "raw": "{\r\n    \"username\": \"ninanoj9224m\",\r\n    \"email\": \"ninanoj9324@cwsgear.com\",\r\n    \"password\": \"123456789\",\r\n    \"confPassword\": \"123456789\"\r\n}",
-          "options": {
-            "raw": {
-              "language": "json"
-            }
-          }
-        },
-        "url": {
-          "raw": "http://localhost:8000/api/v1/auth/register",
-          "protocol": "http",
-          "host": [
-            "localhost"
-          ],
-          "port": "8000",
-          "path": [
-            "api",
-            "v1",
-            "auth",
-            "register"
-          ]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "activation",
-      "request": {
-        "method": "GET",
-        "header": [],
-        "url": {
-          "raw": "http://localhost:8000/api/v1/auth/activation?token=",
-          "protocol": "http",
-          "host": [
-            "localhost"
-          ],
-          "port": "8000",
-          "path": [
-            "api",
-            "v1",
-            "auth",
-            "activation"
-          ],
-          "query": [
-            {
-              "key": "token",
-              "value": ""
-            }
-          ]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "profile",
-      "request": {
-        "auth": {
-          "type": "bearer",
-          "bearer": [
-            {
-              "key": "token",
-              "value": "",
-              "type": "string"
-            }
-          ]
-        },
-        "method": "GET",
-        "header": [],
-        "url": {
-          "raw": "http://localhost:8000/api/v1/auth/profile",
-          "protocol": "http",
-          "host": [
-            "localhost"
-          ],
-          "port": "8000",
-          "path": [
-            "api",
-            "v1",
-            "auth",
-            "profile"
-          ]
-        }
-      },
-      "response": []
-    }
-  ]
+	"info": {
+		"_postman_id": "01c08b26-fa17-410b-8d27-2769c635f829",
+		"name": "be-geosandbox-auth-service",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "21807576",
+		"_collection_link": "https://blue-rocket-102937.postman.co/workspace/My-Workspace~09f9e03d-cd71-4a80-83f3-6765d15cbdb6/collection/21807576-01c08b26-fa17-410b-8d27-2769c635f829?action=share&source=collection_link&creator=21807576"
+	},
+	"item": [
+		{
+			"name": "login Copy",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"email\": \"fohofey294@goldlicai.com\",\n    \"password\": \"ujang123\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://localhost:8000/api/v1/auth/login",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"v1",
+						"auth",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "refresh token Copy",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"refreshToken\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1dWlkIjoiMjUwZGNlODQtMDY5Ni00N2NiLWE1ZGMtNjZhOTgyOGI4ZTVjIiwiZW1haWwiOiJsNjg2dW5ub2d2QG9saXBpaS5jb20iLCJyb2xlIjoidXNlciIsImlhdCI6MTc5MDA0MzU5MCwiZXhwIjoxNzkwNjQ4MzkwfQ.VsET38xCnZkdrC_ecma7ANLu8n25KuCLBG0wlvf09wI\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8000/api/v1/auth/refresh-token",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"v1",
+						"auth",
+						"refresh-token"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "logout Copy",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8000/api/v1/auth/logout",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"v1",
+						"auth",
+						"logout"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "register",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"username\": \"fohofey294\",\r\n    \"email\": \"fohofey294@goldlicai.com\",\r\n    \"password\": \"123456789\",\r\n    \"confPassword\": \"123456789\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://localhost:8000/api/v1/auth/register",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"v1",
+						"auth",
+						"register"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "activation",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://localhost:8000/api/v1/auth/activation?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1dWlkIjoiYjZiOWEzNmUtYTkxZC00ZDI1LTlkNjUtOGE4ZDhmZDcxMmVhIiwiZW1haWwiOiJmb2hvZmV5Mjk0QGdvbGRsaWNhaS5jb20iLCJpYXQiOjE3OTIwMzUyMjcsImV4cCI6MTc5MjAzNTUyN30.IHL8nT6GBTgtupczn2XiOU4Uaf37AwNxTrzsIzNHgXw",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"v1",
+						"auth",
+						"activation"
+					],
+					"query": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1dWlkIjoiYjZiOWEzNmUtYTkxZC00ZDI1LTlkNjUtOGE4ZDhmZDcxMmVhIiwiZW1haWwiOiJmb2hvZmV5Mjk0QGdvbGRsaWNhaS5jb20iLCJpYXQiOjE3OTIwMzUyMjcsImV4cCI6MTc5MjAzNTUyN30.IHL8nT6GBTgtupczn2XiOU4Uaf37AwNxTrzsIzNHgXw"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "profile",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1dWlkIjoiYjZiOWEzNmUtYTkxZC00ZDI1LTlkNjUtOGE4ZDhmZDcxMmVhIiwiZW1haWwiOiJmb2hvZmV5Mjk0QGdvbGRsaWNhaS5jb20iLCJyb2xlIjoidXNlciIsImlhdCI6MTc5MjAzNTM5MywiZXhwIjoxNzkyMDM2MjkzfQ.1hokSRVQZlTccK69omnpfND1izSxLAmr5tREmSHbySM",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://localhost:8000/api/v1/auth/profile",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"v1",
+						"auth",
+						"profile"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "send forget password",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"email\": \"fohofey294@goldlicai.com\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://localhost:8000/api/v1/auth/forget-password",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"v1",
+						"auth",
+						"forget-password"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "update password",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"password\": \"ujang123\",\n    \"confPassword\": \"ujang123\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://localhost:8000/api/v1/auth/update-password?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1dWlkIjoiYjZiOWEzNmUtYTkxZC00ZDI1LTlkNjUtOGE4ZDhmZDcxMmVhIiwiaWF0IjoxNzkyMDM1NDk3LCJleHAiOjE3OTIwMzYzOTd9.0dWgpoPCXGdw7e2UfBWULll41UiEKlL5kC3Gv0CixS0",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"v1",
+						"auth",
+						"update-password"
+					],
+					"query": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1dWlkIjoiYjZiOWEzNmUtYTkxZC00ZDI1LTlkNjUtOGE4ZDhmZDcxMmVhIiwiaWF0IjoxNzkyMDM1NDk3LCJleHAiOjE3OTIwMzYzOTd9.0dWgpoPCXGdw7e2UfBWULll41UiEKlL5kC3Gv0CixS0"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
 }
