@@ -1,7 +1,20 @@
 const { validationResult } = require("express-validator");
 const { formatError } = require("../pkg/error-formatter.pkg");
-const { RegsiterService, LoginService, ProfileService, RefreshTokenService } = require("../services/auth.service");
-const { generateRegisterToken, verifyRegisterToken, generateLoginToken, verifyRefreshToken, generateRefreshToken } = require("../pkg/jwt/jwt.pkg");
+const {
+  RegsiterService,
+  LoginService,
+  ProfileService,
+  RefreshTokenService,
+  SendMsgForgetPasswordService,
+  UpdatePasswordUserService,
+} = require("../services/auth.service");
+const {
+  generateRegisterToken,
+  verifyRegisterToken,
+  generateLoginToken,
+  verifyRefreshToken,
+  generateRefreshToken,
+} = require("../pkg/jwt/jwt.pkg");
 const { sendActivationEmail } = require("../pkg/nodemailer/mailer.pkg");
 const { TblUsers } = require("../models");
 const RedisClient = require("../config/data-cache.config");
@@ -185,11 +198,73 @@ const LogoutController = async (req, res, next) => {
     }
 }
 
+const SendMsgForgetPasswordController = async (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
+
+    const { email } = req.body;
+
+    try {
+        const result = await SendMsgForgetPasswordService(email);
+        return res.status(200).json({
+            message: "Link reset password telah dikirim ke email Anda. Silakan cek inbox Anda.",
+            data: result
+        });
+    } catch (error) {
+        console.error("Error in SendMsgForgetPasswordController:", error.message);
+        if (error.message === "Email tidak terdaftar" || error.message === "Akun belum diaktifkan") {
+            return res.status(404).json(formatError(error.message, "email"));
+        }
+        return res.status(500).json(formatError(error.message, "server"));
+    }
+};
+
+const UpdatePasswordUserController = async (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
+
+    const token = req.query.token || req.body.token || req.headers['authorization']?.split(' ')[1];
+    if (!token) {
+        return res.status(400).json(formatError("Token reset password diperlukan", "token"));
+    }
+
+    const { password } = req.body;
+
+    try {
+        const result = await UpdatePasswordUserService({ token, password });
+        return res.status(200).json({
+            message: "Password berhasil diperbarui. Silakan login kembali dengan password baru.",
+            data: result
+        });
+    } catch (error) {
+        console.error("Error in UpdatePasswordUserController:", error.message);
+        if (
+            error.message.includes("tidak valid") ||
+            error.message.includes("kedaluwarsa") ||
+            error.message.includes("sudah pernah digunakan") ||
+            error.message.includes("tidak cocok") ||
+            error.message.includes("diperlukan")
+        ) {
+            return res.status(400).json(formatError(error.message, "token"));
+        }
+        if (error.message === "User tidak ditemukan") {
+            return res.status(404).json(formatError(error.message, "user"));
+        }
+        return res.status(500).json(formatError(error.message, "server"));
+    }
+};
+
 module.exports = {
     RegisterController,
     ActivationController,
     LoginController,
     ProfileController,
     RefreshController,
-    LogoutController
-}
+    LogoutController,
+    SendMsgForgetPasswordController,
+    UpdatePasswordUserController,
+};

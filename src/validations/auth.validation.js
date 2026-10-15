@@ -1,6 +1,6 @@
-const { body, validationResult } = require('express-validator');
-const db = require('../models/index')
-const TblUsers = db.TblUsers
+const { body } = require('express-validator');
+const db = require('../models/index');
+const TblUsers = db.TblUsers;
 
 const RegisterValidation = [
     body('username').notEmpty().withMessage("Username tidak boleh kosong"),
@@ -29,8 +29,30 @@ const RegisterValidation = [
         }
         return true;
     }),
-]
+];
+
+const ForgetPasswordValidation = [
+    body('email')
+        .notEmpty().withMessage("Email tidak boleh kosong")
+        .isEmail().withMessage("Email tidak valid"),
+];
+
+const UpdatePasswordValidation = [
+    body('password')
+        .notEmpty().withMessage("Password tidak boleh kosong")
+        .isLength({ min: 8 }).withMessage("Password minimal 8 karakter"),
+    body('confPassword')
+        .notEmpty().withMessage("Confirm password tidak boleh kosong")
+        .custom((value, { req }) => {
+            if (value !== req.body.password) {
+                throw new Error("Password dan confirm password tidak sama");
+            }
+            return true;
+        }),
+];
 
 module.exports = {
-    RegisterValidation
-}
+    RegisterValidation,
+    ForgetPasswordValidation,
+    UpdatePasswordValidation,
+};

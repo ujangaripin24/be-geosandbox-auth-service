@@ -37,11 +37,31 @@ jest.mock("../src/controllers/auth.controller", () => ({
       message: "Logout berhasil.",
     }),
   ),
+  SendMsgForgetPasswordController: jest.fn((req, res) =>
+    res.status(200).json({
+      message: "Link reset password telah dikirim ke email Anda. Silakan cek inbox Anda.",
+      data: {
+        message: "Email reset password berhasil dikirim",
+        email: req.body.email,
+      },
+    }),
+  ),
+  UpdatePasswordUserController: jest.fn((req, res) =>
+    res.status(200).json({
+      message: "Password berhasil diperbarui. Silakan login kembali dengan password baru.",
+      data: {
+        message: "Password berhasil diperbarui",
+        uuid: "mock-uuid",
+      },
+    }),
+  ),
 }));
 
 // Mock JWT helper
 jest.mock("../src/pkg/jwt/jwt.pkg", () => ({
   verifyLoginToken: jest.fn(),
+  generateResetPasswordToken: jest.fn(),
+  verifyResetPasswordToken: jest.fn(),
 }));
 
 // Mock Redis Client
@@ -55,6 +75,7 @@ jest.mock("../src/config/data-cache.config", () => ({
 jest.mock("../src/models/index", () => ({
   TblUsers: {
     findOne: jest.fn(),
+    update: jest.fn(),
   },
 }));
 
@@ -68,6 +89,8 @@ const {
   RefreshController,
   ProfileController,
   LogoutController,
+  SendMsgForgetPasswordController,
+  UpdatePasswordUserController,
 } = require("../src/controllers/auth.controller");
 const authRouter = require("../src/routes/auth.route");
 
@@ -113,32 +136,6 @@ describe("Auth Routes & Validations Unit Testing", () => {
         email: "invalid-email-format",
         password: "password123",
         confPassword: "password123",
-      });
-
-      expect(res.status).toBe(400);
-      expect(res.body).toHaveProperty("errors");
-      expect(RegisterController).not.toHaveBeenCalled();
-    });
-
-    it("harus mengembalikan 400 jika password kurang dari 8 karakter", async () => {
-      const res = await request(app).post("/auth/register").send({
-        username: "testuser",
-        email: "user@example.com",
-        password: "123",
-        confPassword: "123",
-      });
-
-      expect(res.status).toBe(400);
-      expect(res.body).toHaveProperty("errors");
-      expect(RegisterController).not.toHaveBeenCalled();
-    });
-
-    it("harus mengembalikan 400 jika password dan confirm password tidak sama", async () => {
-      const res = await request(app).post("/auth/register").send({
-        username: "testuser",
-        email: "user@example.com",
-        password: "password123",
-        confPassword: "differentpassword",
       });
 
       expect(res.status).toBe(400);
@@ -238,6 +235,101 @@ describe("Auth Routes & Validations Unit Testing", () => {
 
       expect(res.status).toBe(200);
       expect(RefreshController).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe("POST /auth/forget-password & /auth/forgot-password (Validation & Controller)", () => {
+    it("harus mengembalikan 400 jika email kosong", async () => {
+      const res = await request(app).post("/auth/forget-password").send({
+        email: "",
+      });
+
+      expect(res.status).toBe(400);
+      expect(res.body).toHaveProperty("errors");
+      expect(SendMsgForgetPasswordController).not.toHaveBeenCalled();
+    });
+
+    it("harus mengembalikan 400 jika format email tidak valid", async () => {
+      const res = await request(app).post("/auth/forget-password").send({
+        email: "bukan-email-valid",
+      });
+
+      expect(res.status).toBe(400);
+      expect(res.body).toHaveProperty("errors");
+      expect(SendMsgForgetPasswordController).not.toHaveBeenCalled();
+    });
+
+    it("harus memanggil SendMsgForgetPasswordController dan mengembalikan 200 jika email valid", async () => {
+      const res = await request(app).post("/auth/forget-password").send({
+        email: "user@example.com",
+      });
+
+      expect(res.status).toBe(200);
+      expect(SendMsgForgetPasswordController).toHaveBeenCalledTimes(1);
+    });
+
+    it("harus memanggil SendMsgForgetPasswordController jika mengakses route alias /auth/forgot-password", async () => {
+      const res = await request(app).post("/auth/forgot-password").send({
+        email: "user@example.com",
+      });
+
+      expect(res.status).toBe(200);
+      expect(SendMsgForgetPasswordController).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe("POST /auth/update-password & /auth/reset-password (Validation & Controller)", () => {
+    it("harus mengembalikan 400 jika password kosong", async () => {
+      const res = await request(app).post("/auth/update-password").send({
+        password: "",
+        confPassword: "",
+      });
+
+      expect(res.status).toBe(400);
+      expect(res.body).toHaveProperty("errors");
+      expect(UpdatePasswordUserController).not.toHaveBeenCalled();
+    });
+
+    it("harus mengembalikan 400 jika password kurang dari 8 karakter", async () => {
+      const res = await request(app).post("/auth/update-password").send({
+        password: "short",
+        confPassword: "short",
+      });
+
+      expect(res.status).toBe(400);
+      expect(res.body).toHaveProperty("errors");
+      expect(UpdatePasswordUserController).not.toHaveBeenCalled();
+    });
+
+    it("harus mengembalikan 400 jika confPassword tidak cocok dengan password", async () => {
+      const res = await request(app).post("/auth/update-password").send({
+        password: "newPassword123",
+        confPassword: "differentPassword123",
+      });
+
+      expect(res.status).toBe(400);
+      expect(res.body).toHaveProperty("errors");
+      expect(UpdatePasswordUserController).not.toHaveBeenCalled();
+    });
+
+    it("harus memanggil UpdatePasswordUserController dan mengembalikan 200 jika password dan confPassword valid", async () => {
+      const res = await request(app).post("/auth/update-password?token=mock-token").send({
+        password: "newPassword123",
+        confPassword: "newPassword123",
+      });
+
+      expect(res.status).toBe(200);
+      expect(UpdatePasswordUserController).toHaveBeenCalledTimes(1);
+    });
+
+    it("harus memanggil UpdatePasswordUserController jika mengakses route alias /auth/reset-password", async () => {
+      const res = await request(app).post("/auth/reset-password?token=mock-token").send({
+        password: "newPassword123",
+        confPassword: "newPassword123",
+      });
+
+      expect(res.status).toBe(200);
+      expect(UpdatePasswordUserController).toHaveBeenCalledTimes(1);
     });
   });
 

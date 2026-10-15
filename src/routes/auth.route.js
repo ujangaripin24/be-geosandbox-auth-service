@@ -1,5 +1,9 @@
 const express = require("express");
-const { RegisterValidation } = require("../validations/auth.validation");
+const {
+  RegisterValidation,
+  ForgetPasswordValidation,
+  UpdatePasswordValidation,
+} = require("../validations/auth.validation");
 const {
   RegisterController,
   ActivationController,
@@ -7,6 +11,8 @@ const {
   RefreshController,
   ProfileController,
   LogoutController,
+  SendMsgForgetPasswordController,
+  UpdatePasswordUserController,
 } = require("../controllers/auth.controller");
 const { validationResult } = require("express-validator");
 const {
@@ -21,6 +27,14 @@ const { version } = require("../../package.json");
 
 const router = express.Router();
 
+const handleValidation = (req, res, next) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
+  next();
+};
+
 router.get("/auth/health", (req, res) => {
   res.status(200).json({
     status: 200,
@@ -33,14 +47,7 @@ router.get("/auth/health", (req, res) => {
 router.post(
   "/auth/register",
   RegisterValidation,
-  (req, res, next) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    } else {
-      next();
-    }
-  },
+  handleValidation,
   RegisterController,
 );
 
@@ -49,29 +56,29 @@ router.get("/auth/activation", ActivationController);
 router.post(
   "/auth/login",
   LoginValidator,
-  (req, res, next) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    } else {
-      next();
-    }
-  },
+  handleValidation,
   LoginController,
 );
 
 router.post(
   "/auth/refresh-token",
   RefreshTokenValidator,
-  (req, res, next) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    } else {
-      next();
-    }
-  },
+  handleValidation,
   RefreshController,
+);
+
+router.post(
+  ["/auth/forget-password", "/auth/forgot-password"],
+  ForgetPasswordValidation,
+  handleValidation,
+  SendMsgForgetPasswordController,
+);
+
+router.post(
+  ["/auth/update-password", "/auth/reset-password"],
+  UpdatePasswordValidation,
+  handleValidation,
+  UpdatePasswordUserController,
 );
 
 router.get("/auth/profile", authenticateTokenGuard, ProfileController);
