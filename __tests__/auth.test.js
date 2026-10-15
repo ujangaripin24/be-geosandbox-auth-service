@@ -238,9 +238,9 @@ describe("Auth Routes & Validations Unit Testing", () => {
     });
   });
 
-  describe("POST /auth/forget-password & /auth/forgot-password (Validation & Controller)", () => {
+  describe("POST /auth/forgot-password & /auth/forgot-password (Validation & Controller)", () => {
     it("harus mengembalikan 400 jika email kosong", async () => {
-      const res = await request(app).post("/auth/forget-password").send({
+      const res = await request(app).post("/auth/forgot-password").send({
         email: "",
       });
 
@@ -250,7 +250,7 @@ describe("Auth Routes & Validations Unit Testing", () => {
     });
 
     it("harus mengembalikan 400 jika format email tidak valid", async () => {
-      const res = await request(app).post("/auth/forget-password").send({
+      const res = await request(app).post("/auth/forgot-password").send({
         email: "bukan-email-valid",
       });
 
@@ -260,7 +260,7 @@ describe("Auth Routes & Validations Unit Testing", () => {
     });
 
     it("harus memanggil SendMsgForgetPasswordController dan mengembalikan 200 jika email valid", async () => {
-      const res = await request(app).post("/auth/forget-password").send({
+      const res = await request(app).post("/auth/forgot-password").send({
         email: "user@example.com",
       });
 
@@ -278,9 +278,9 @@ describe("Auth Routes & Validations Unit Testing", () => {
     });
   });
 
-  describe("POST /auth/update-password & /auth/reset-password (Validation & Controller)", () => {
+  describe("POST /auth/reset-password & /auth/reset-password (Validation & Controller)", () => {
     it("harus mengembalikan 400 jika password kosong", async () => {
-      const res = await request(app).post("/auth/update-password").send({
+      const res = await request(app).post("/auth/reset-password").send({
         password: "",
         confPassword: "",
       });
@@ -291,7 +291,7 @@ describe("Auth Routes & Validations Unit Testing", () => {
     });
 
     it("harus mengembalikan 400 jika password kurang dari 8 karakter", async () => {
-      const res = await request(app).post("/auth/update-password").send({
+      const res = await request(app).post("/auth/reset-password").send({
         password: "short",
         confPassword: "short",
       });
@@ -302,7 +302,7 @@ describe("Auth Routes & Validations Unit Testing", () => {
     });
 
     it("harus mengembalikan 400 jika confPassword tidak cocok dengan password", async () => {
-      const res = await request(app).post("/auth/update-password").send({
+      const res = await request(app).post("/auth/reset-password").send({
         password: "newPassword123",
         confPassword: "differentPassword123",
       });
@@ -313,7 +313,7 @@ describe("Auth Routes & Validations Unit Testing", () => {
     });
 
     it("harus memanggil UpdatePasswordUserController dan mengembalikan 200 jika password dan confPassword valid", async () => {
-      const res = await request(app).post("/auth/update-password?token=mock-token").send({
+      const res = await request(app).post("/auth/reset-password?token=mock-token").send({
         password: "newPassword123",
         confPassword: "newPassword123",
       });
