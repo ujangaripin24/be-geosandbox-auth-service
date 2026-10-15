@@ -53,12 +53,7 @@ router.post(
 
 router.get("/auth/activation", ActivationController);
 
-router.post(
-  "/auth/login",
-  LoginValidator,
-  handleValidation,
-  LoginController,
-);
+router.post("/auth/login", LoginValidator, handleValidation, LoginController);
 
 router.post(
   "/auth/refresh-token",
@@ -68,14 +63,14 @@ router.post(
 );
 
 router.post(
-  ["/auth/forget-password", "/auth/forgot-password"],
+  "/auth/forgot-password",
   ForgetPasswordValidation,
   handleValidation,
   SendMsgForgetPasswordController,
 );
 
 router.post(
-  ["/auth/update-password", "/auth/reset-password"],
+  "/auth/reset-password",
   UpdatePasswordValidation,
   handleValidation,
   UpdatePasswordUserController,
