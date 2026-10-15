@@ -4,37 +4,43 @@ html(lang="id")
     meta(charset="UTF-8")
     meta(name="viewport", content="width=device-width, initial-scale=1.0")
     title Aktivasi Akun - GeoSandbox
-  body(style="margin: 0; padding: 0; background-color: #f1f5f9; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #1e293b;")
-    table(role="presentation", width="100%", cellspacing="0", cellpadding="0", style="background-color: #f1f5f9; padding: 40px 15px;")
+  body(style="margin: 0; padding: 0; background-color: #22d3ee; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #000000;")
+    table(role="presentation", width="100%", cellspacing="0", cellpadding="0", style="background-color: #22d3ee; padding: 40px 15px;")
       tr
         td(align="center")
-          table(role="presentation", width="100%", style="max-width: 580px; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); border: 1px solid #e2e8f0;", cellspacing="0", cellpadding="0")
+          table(role="presentation", width="100%", style="max-width: 580px; background-color: #ffffff; border: 4px solid #000000; box-shadow: 8px 8px 0px #000000; overflow: hidden;", cellspacing="0", cellpadding="0")
+            
             tr
-              td(style="background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); padding: 32px 30px; text-align: center;")
-                h1(style="margin: 0; color: #ffffff; font-size: 26px; font-weight: 700; letter-spacing: -0.5px;") GeoSandbox
-                p(style="margin: 6px 0 0; color: #bfdbfe; font-size: 14px; font-weight: 500;") Sistem Autentikasi & GIS Platform
+              td(style="background-color: #fbe53e; border-bottom: 4px solid #000000; padding: 32px 30px; text-align: left;")
+                h1(style="margin: 0; color: #000000; font-size: 32px; font-weight: 900; text-transform: uppercase; letter-spacing: -0.5px;") GeoSandbox
+                p(style="margin: 8px 0 0; color: #000000; font-size: 14px; font-weight: 700; background-color: #ffffff; display: inline-block; padding: 4px 8px; border: 2px solid #000000; box-shadow: 2px 2px 0px #000000;") Sistem Autentikasi &amp; GIS Platform
+            
             tr
               td(style="padding: 36px 32px;")
-                h2(style="margin: 0 0 16px; color: #0f172a; font-size: 20px; font-weight: 600;") Verifikasi & Aktivasi Akun Anda
-                p(style="margin: 0 0 20px; color: #475569; font-size: 15px; line-height: 1.6;")
+                h2(style="margin: 0 0 16px; color: #000000; font-size: 24px; font-weight: 800; text-transform: uppercase;") Verifikasi &amp; Aktivasi Akun Anda
+                p(style="margin: 0 0 24px; color: #000000; font-size: 16px; line-height: 1.6; font-weight: 500;")
                   | Terima kasih telah mendaftar di 
-                  strong GeoSandbox
+                  strong(style="background-color: #a78bfa; padding: 2px 4px; border: 1px solid #000000;") GeoSandbox
                   | ! Tinggal satu langkah lagi untuk mengaktifkan akun Anda. Silakan klik tombol di bawah ini untuk menyelesaikan proses pendaftaran:
+                
                 table(role="presentation", cellspacing="0", cellpadding="0", style="margin: 28px 0;")
                   tr
-                    td(align="center", style="border-radius: 8px; background-color: #2563eb;")
-                      a(href=activationLink, target="_blank", style="display: inline-block; padding: 14px 32px; font-size: 15px; font-weight: 600; color: #ffffff; text-decoration: none; border-radius: 8px; background-color: #2563eb; letter-spacing: 0.2px;") Aktifkan Akun Saya
-                div(style="background-color: #f8fafc; border-left: 4px solid #3b82f6; border-radius: 4px; padding: 14px 18px; margin: 24px 0;")
-                  p(style="margin: 0; font-size: 13px; color: #64748b; line-height: 1.5;")
+                    td(align="center" style="background-color: #ff007f; border: 3px solid #000000; box-shadow: 4px 4px 0px #000000;")
+                      a(href=activationLink, target="_blank", style="display: inline-block; padding: 14px 32px; font-size: 16px; font-weight: 800; color: #ffffff; text-decoration: none; text-transform: uppercase; letter-spacing: 0.5px;") Aktifkan Akun Saya
+                
+                div(style="background-color: #f1f5f9; border: 3px solid #000000; padding: 16px 18px; margin: 32px 0; box-shadow: 4px 4px 0px #000000;")
+                  p(style="margin: 0; font-size: 14px; color: #000000; line-height: 1.5; font-weight: 600;")
                     | ⏱️ 
-                    strong Penting: 
-                    | Tautan aktivasi ini hanya berlaku selama 
-                    strong 5 menit
+                    span(style="text-transform: uppercase; font-weight: 800; text-decoration: underline;") Penting:
+                    |  Tautan aktivasi ini hanya berlaku selama 
+                    strong(style="background-color: #fbe53e; padding: 2px 4px; border: 1px solid #000000;") 5 menit
                     |  sejak email ini dikirimkan.
-                p(style="margin: 24px 0 8px; font-size: 13px; color: #64748b;") Jika tombol di atas tidak berfungsi, salin dan tempel URL berikut ke browser Anda:
-                p(style="margin: 0; font-size: 12px; word-break: break-all; background-color: #f1f5f9; padding: 10px 12px; border-radius: 6px; font-family: monospace; color: #2563eb;")
-                  a(href=activationLink, style="color: #2563eb; text-decoration: underline;")= activationLink
+                
+                p(style="margin: 32px 0 8px; font-size: 13px; font-weight: 700; color: #000000;") Jika tombol di atas tidak berfungsi, salin dan tempel URL berikut ke browser Anda:
+                p(style="margin: 0; font-size: 13px; word-break: break-all; background-color: #ffffff; border: 2px solid #000000; padding: 12px; font-family: monospace; color: #2563eb;")
+                  a(href=activationLink, style="color: #2563eb; text-decoration: underline; font-weight: 700;")= activationLink
+            
             tr
-              td(style="background-color: #f8fafc; border-top: 1px solid #e2e8f0; padding: 24px 32px; text-align: center;")
-                p(style="margin: 0 0 6px; font-size: 12px; color: #94a3b8;") Jika Anda tidak merasa melakukan pendaftaran akun, silakan abaikan email ini dengan aman.
-                p(style="margin: 0; font-size: 12px; color: #94a3b8;") &copy; #{new Date().getFullYear()} GeoSandbox. Seluruh hak cipta dilindungi.
+              td(style="background-color: #ffffff; border-top: 4px solid #000000; padding: 24px 32px; text-align: center;")
+                p(style="margin: 0 0 8px; font-size: 13px; color: #000000; font-weight: 500;") Jika Anda tidak merasa melakukan pendaftaran akun, silakan abaikan email ini dengan aman.
+                p(style="margin: 0; font-size: 13px; color: #000000; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;") &copy; #{new Date().getFullYear()} GeoSandbox. Seluruh hak cipta dilindungi.
