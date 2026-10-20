@@ -1,3 +1,5 @@
+const { UAParser } = require("ua-parser-js");
+const geoip = require("geoip-lite");
 const { validationResult } = require("express-validator");
 const { formatError } = require("../pkg/error-formatter.pkg");
 const {
@@ -137,6 +139,66 @@ const LoginController = async (req, res, next) => {
     let refreshToken = generateRefreshToken(user);
 
     await RedisClient.set(`refresh_token:${user.uuid}`, refreshToken);
+
+    // 1. Deteksi Device, Browser, dan OS via ua-parser-js
+    const userAgent = req.headers["user-agent"] || "";
+    const parser = new UAParser(userAgent);
+    const ua = parser.getResult();
+
+    const browser = ua.browser.name
+      ? `${ua.browser.name}${ua.browser.version ? " " + ua.browser.version : ""}`
+      : "Unknown Browser";
+
+    const os = ua.os.name
+      ? `${ua.os.name}${ua.os.version ? " " + ua.os.version : ""}`
+      : "Unknown OS";
+
+    const device =
+      ua.device.type ||
+      ua.device.model ||
+      (clientType === "mobile" ? "Mobile" : "Desktop");
+
+    // 2. Deteksi Lokasi via geoip-lite
+    const clientIp = (
+      req.headers["x-forwarded-for"]?.split(",")[0]?.trim() ||
+      req.socket?.remoteAddress ||
+      req.ip ||
+      "Unknown"
+    ).replace(/^.*:/, "");
+
+    const geo = clientIp && clientIp !== "Unknown" ? geoip.lookup(clientIp) : null;
+    const city = geo?.city || null;
+    const region = geo?.region || null;
+    const country = geo?.country || null;
+    const timezone = geo?.timezone || null;
+    const lat = geo?.ll?.[0] ? Number(geo.ll[0]) : null;
+    const lng = geo?.ll?.[1] ? Number(geo.ll[1]) : null;
+    const address = [city, region, country].filter(Boolean).join(", ") || null;
+
+    // 3. Kirim riwayat login ke message broker (RabbitMQ)
+    try {
+      await deliverMessageData(["user_login_history"], {
+        uuid_user: user.uuid,
+        email: user.email,
+        ip_address: clientIp,
+        device,
+        browser,
+        os,
+        city,
+        region,
+        country,
+        timezone,
+        lat,
+        lng,
+        address,
+        user_agent: userAgent || null,
+        status: "SUCCESS",
+        failure_reason: null,
+        login_at: new Date(),
+      });
+    } catch (brokerErr) {
+      console.error("Gagal mengirim pesan login history ke message broker:", brokerErr.message);
+    }
 
     if (clientType === "web") {
       res.cookie("refreshToken", refreshToken, {
