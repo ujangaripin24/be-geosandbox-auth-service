@@ -1,4 +1,4 @@
-Berdasarkan hasil penelusuran langsung pada 5 direktori repository proyek:
+# Auth Service Version 20/10/2026
 
 1. [be-geosandbox-infrastructure](file:///media/pratiwi24/c7468a67-9c5e-4403-93e8-cadc33a9abaf19/Project%20App/Express.js/be-geosandbox-infrastructure)
 2. [be-geosandbox-database-s3](file:///media/pratiwi24/c7468a67-9c5e-4403-93e8-cadc33a9abaf19/Project%20App/Express.js/be-geosandbox-database-s3)
