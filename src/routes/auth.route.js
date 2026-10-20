@@ -26,6 +26,8 @@ const {
   authenticateTokenRole,
 } = require("../middlewares/auth.middleware");
 const { version } = require("../../package.json");
+const { UAParser } = require("ua-parser-js");
+const geoip = require("geoip-lite");
 
 const router = express.Router();
 
@@ -36,6 +38,48 @@ const handleValidation = (req, res, next) => {
   }
   next();
 };
+
+router.get("/auth/user-login", (req, res, next) => {
+  const userAgent = req.headers["user-agent"] || "";
+  const parser = new UAParser(userAgent);
+
+  const browser = parser.getBrowser().name || "Unknown Browser";
+  const os = parser.getOS().name || "Unknown OS";
+  const device = parser.getDevice().type || "desktop";
+
+  let ip = req.headers["x-forwarded-for"] || req.socket.remoteAddress;
+
+  if (ip === "::1" || ip === "127.0.0.1" || ip.includes("::ffff:127.0.0.1")) {
+    ip = "103.247.206.1";
+  }
+
+  const geo = geoip.lookup(ip);
+
+  const location = geo
+    ? {
+        country: geo.country,
+        region: geo.region,
+        city: geo.city,
+        timezone: geo.timezone,
+        latlng: geo.ll,
+      }
+    : {
+        country: "Unknown",
+        region: "Unknown",
+        city: "Unknown",
+        timezone: "Unknown",
+        latlng: [0, 0],
+      };
+
+  return res.status(200).json({
+    message: "User Login Info Complete",
+    data: {
+      ip,
+      device: { browser, os, device },
+      location: location,
+    },
+  });
+});
 
 router.get("/auth/health", (req, res) => {
   res.status(200).json({

@@ -149,7 +149,6 @@ const UpdatePasswordUserService = async ({ token, password }) => {
   };
 };
 
-
 const ResendActivationService = async (email) => {
   const user = await TblUsers.findOne({ where: { email } });
   if (!user) {
