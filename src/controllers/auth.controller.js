@@ -93,12 +93,27 @@ const LoginController = async (req, res, next) => {
     const clientType = (req.headers['x-client-type'] || 'web').toLowerCase();
     console.log(`Login Controller [Client: ${clientType}]:`, body.email);
 
+    const rawIp = req.headers['x-forwarded-for'] || req.socket.remoteAddress || req.ip || 'Unknown';
+    const ipAddress = typeof rawIp === 'string' ? rawIp.split(',')[0].trim() : 'Unknown';
+    const userAgent = req.headers['user-agent'] || 'Unknown';
+
     try {
         let user = await LoginService(body.email, body.password);
         let token = generateLoginToken(user);
         let refreshToken = generateRefreshToken(user);
 
         await RedisClient.set(`refresh_token:${user.uuid}`, refreshToken);
+
+        deliverMessageData('user_login_history', {
+            uuid_user: user.uuid,
+            email: user.email,
+            ip_address: ipAddress,
+            user_agent: userAgent,
+            status: 'SUCCESS',
+            login_at: new Date()
+        }).catch(err => {
+            console.error('[RabbitMQ] Gagal mengirim log user_login_history:', err.message);
+        });
 
         if (clientType === 'web') {
             res.cookie('refreshToken', refreshToken, {
@@ -119,6 +134,19 @@ const LoginController = async (req, res, next) => {
             data: { token, refreshToken }
         });
     } catch (error) {
+        // Kirim event user_login_history (FAILED) ke message broker
+        deliverMessageData('user_login_history', {
+            uuid_user: null,
+            email: body?.email || null,
+            ip_address: ipAddress,
+            user_agent: userAgent,
+            status: 'FAILED',
+            failure_reason: error.message,
+            login_at: new Date()
+        }).catch(err => {
+            console.error('[RabbitMQ] Gagal mengirim log user_login_history failed:', err.message);
+        });
+
         if (error.message === "Email atau password salah" || error.message === "Akun belum diaktifkan") {
             return res.status(401).json(formatError(error.message, "message"));
         }
