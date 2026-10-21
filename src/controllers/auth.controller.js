@@ -128,69 +128,83 @@ const LoginController = async (req, res, next) => {
   if (!errors.isEmpty()) {
     return res.status(400).json({ errors: errors.array() });
   }
+  try {
+    let body = req.body;
+    const clientType = (req.headers["x-client-type"] || "web").toLowerCase();
+    console.log(`Login Controller [Client: ${clientType}]:`, body.email);
 
-  let body = req.body;
-  const clientType = (req.headers["x-client-type"] || "web").toLowerCase();
-  console.log(`Login Controller [Client: ${clientType}]:`, body.email);
-
-    const rawIp = req.headers['x-forwarded-for'] || req.socket.remoteAddress || req.ip || 'Unknown';
-    const ipAddress = typeof rawIp === 'string' ? rawIp.split(',')[0].trim() : 'Unknown';
-    const userAgent = req.headers['user-agent'] || 'Unknown';
+    const rawIp =
+      req.headers["x-forwarded-for"] ||
+      req.socket.remoteAddress ||
+      req.ip ||
+      "Unknown";
+    const ipAddress =
+      typeof rawIp === "string" ? rawIp.split(",")[0].trim() : "Unknown";
+    const userAgent = req.headers["user-agent"] || "Unknown";
 
     try {
-        let user = await LoginService(body.email, body.password);
-        let token = generateLoginToken(user);
-        let refreshToken = generateRefreshToken(user);
+      let user = await LoginService(body.email, body.password);
+      let token = generateLoginToken(user);
+      let refreshToken = generateRefreshToken(user);
 
-        await RedisClient.set(`refresh_token:${user.uuid}`, refreshToken);
+      await RedisClient.set(`refresh_token:${user.uuid}`, refreshToken);
 
-        deliverMessageData('user_login_history', {
-            uuid_user: user.uuid,
-            email: user.email,
-            ip_address: ipAddress,
-            user_agent: userAgent,
-            status: 'SUCCESS',
-            login_at: new Date()
-        }).catch(err => {
-            console.error('[RabbitMQ] Gagal mengirim log user_login_history:', err.message);
+      deliverMessageData("user_login_history", {
+        uuid_user: user.uuid,
+        email: user.email,
+        ip_address: ipAddress,
+        user_agent: userAgent,
+        status: "SUCCESS",
+        login_at: new Date(),
+      }).catch((err) => {
+        console.error(
+          "[RabbitMQ] Gagal mengirim log user_login_history:",
+          err.message,
+        );
+      });
+
+      if (clientType === "web") {
+        res.cookie("refreshToken", refreshToken, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === "production",
+          sameSite: "strict",
+          maxAge: 7 * 24 * 60 * 60 * 1000, // 7 hari
         });
-
-        if (clientType === 'web') {
-            res.cookie('refreshToken', refreshToken, {
-                httpOnly: true,
-                secure: process.env.NODE_ENV === 'production',
-                sameSite: 'strict',
-                maxAge: 7 * 24 * 60 * 60 * 1000 // 7 hari
-            });
-
-            return res.status(200).json({
-                message: "Login Sukses",
-                data: { token }
-            });
-        }
 
         return res.status(200).json({
-            message: "Login Sukses",
-            data: { token, refreshToken }
+          message: "Login Sukses",
+          data: { token },
         });
-    } catch (error) {
-        // Kirim event user_login_history (FAILED) ke message broker
-        deliverMessageData('user_login_history', {
-            uuid_user: null,
-            email: body?.email || null,
-            ip_address: ipAddress,
-            user_agent: userAgent,
-            status: 'FAILED',
-            failure_reason: error.message,
-            login_at: new Date()
-        }).catch(err => {
-            console.error('[RabbitMQ] Gagal mengirim log user_login_history failed:', err.message);
-        });
+      }
 
-        if (error.message === "Email atau password salah" || error.message === "Akun belum diaktifkan") {
-            return res.status(401).json(formatError(error.message, "message"));
-        }
-        res.status(500).json(formatError(error.message, "server"));
+      return res.status(200).json({
+        message: "Login Sukses",
+        data: { token, refreshToken },
+      });
+    } catch (error) {
+      // Kirim event user_login_history (FAILED) ke message broker
+      deliverMessageData("user_login_history", {
+        uuid_user: null,
+        email: body?.email || null,
+        ip_address: ipAddress,
+        user_agent: userAgent,
+        status: "FAILED",
+        failure_reason: error.message,
+        login_at: new Date(),
+      }).catch((err) => {
+        console.error(
+          "[RabbitMQ] Gagal mengirim log user_login_history failed:",
+          err.message,
+        );
+      });
+
+      if (
+        error.message === "Email atau password salah" ||
+        error.message === "Akun belum diaktifkan"
+      ) {
+        return res.status(401).json(formatError(error.message, "message"));
+      }
+      res.status(500).json(formatError(error.message, "server"));
     }
 
     if (clientType === "web") {
