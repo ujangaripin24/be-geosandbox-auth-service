@@ -1,16 +1,20 @@
 const cors = require("cors");
 const express = require("express");
 const logger = require("morgan");
+const http = require("http");
 const dotenv = require("dotenv");
 const helmet = require("helmet");
 const createError = require("http-errors");
+const SocketIO = require("socket.io");
 const fs = require("fs");
 const path = require("path");
 const database = require("./config/database.config");
 const dataCache = require("./config/data-cache.config");
 const authRouter = require("./routes/auth.route");
 const messageBroker = require("./config/message-broker.config");
-const { listenUserUpdatedQueue } = require("./pkg/message-broker/user.subscriber");
+const {
+  listenUserUpdatedQueue,
+} = require("./pkg/message-broker/user.subscriber");
 const cookieParser = require("cookie-parser");
 
 dotenv.config();
@@ -19,12 +23,42 @@ let app = express();
 // let accessLogStream = fs.createWriteStream(path.join(__dirname, 'logs', 'access.log'))
 let dateNow = new Date().toISOString().replace("T", " ").substring(0, 19);
 
-app.use(helmet());
-app.use(cors({
-  origin: ["http://localhost:5173", "http://localhost:3000"],
-  credentials: true,
-  allowedHeaders: ["Content-Type", "Authorization", "X-Client-Type"]
-}));
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        styleSrc: ["'self'"],
+        imgSrc: ["'self'"],
+        scriptSrc: ["'self'"],
+        objectSrc: ["'none'"],
+        baseUri: ["'self'"],
+        formAction: ["'self'"],
+        frameAncestors: ["'none'"],
+        upgradeInsecureRequests: [],
+      },
+    },
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+    hsts: {
+      maxAge: 31536000,
+      includeSubDomains: true,
+      preload: false,
+    },
+    hidePoweredBy: true,
+    frameguard: { action: "deny" },
+    dnsPrefetchControl: { allow: false },
+    ieNoOpen: true,
+    referrerPolicy: { policy: "strict-origin-when-cross-origin" },
+    xssFilter: true,
+  }),
+);
+app.use(
+  cors({
+    origin: ["http://localhost:5173", "http://localhost:3000"],
+    credentials: true,
+    allowedHeaders: ["Content-Type", "Authorization", "X-Client-Type"],
+  }),
+);
 app.use(logger("dev"));
 // app.use(logger('combined', { stream: accessLogStream }));
 app.use(express.json());

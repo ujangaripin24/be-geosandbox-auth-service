@@ -37,6 +37,7 @@
     "pug": "^3.0.4",
     "redis": "^6.2.1",
     "sequelize": "^6.37.8",
+    "socket.io": "^4.8.4",
     "ua-parser-js": "^2.0.10"
   },
   "devDependencies": {
