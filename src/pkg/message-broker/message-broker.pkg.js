@@ -23,7 +23,7 @@ const setupDLQForQueue = async (channel, targetQueue) => {
 };
 
 /**
- * Deliver payload data to a specified RabbitMQ queue
+ * Deliver payload data to specified RabbitMQ queue(s)
  * @param {string|string[]} queueName - Target Queue Name(s)
  * @param {object|string} payload - Payload object or string
  */
@@ -54,6 +54,11 @@ const deliverMessageData = async (queueName, payload) => {
   }
 };
 
+/**
+ * Consume messages with Manual ACK and automatic Dead-Lettering on error
+ * @param {string|string[]} queueName - Queue Name(s)
+ * @param {function} callback - Callback function accepting (msg, payload)
+ */
 const reciverMessageData = async (queueName, callback) => {
   try {
     const channel = getChannel();
@@ -78,6 +83,7 @@ const reciverMessageData = async (queueName, callback) => {
             console.error(
               `[RabbitMQ] Error processing message in '${targetQueue}': ${err.message}. Moving to DLQ '${dlqName}'`,
             );
+            // Move message to DLQ (requeue: false)
             channel.nack(msg, false, false);
           }
         },
@@ -96,7 +102,8 @@ const reciverMessageData = async (queueName, callback) => {
 };
 
 /**
- * Reprocess / Replay messages from DLQ back to Main Queue
+ * Reprocess / Replay messages from DLQ back to the main queue
+ * @param {string} targetQueue - Main Queue Name
  */
 const reprocessDLQMessages = async (targetQueue) => {
   try {
