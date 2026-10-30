@@ -19,7 +19,9 @@ const consumeUserUpdatedQueue = async () => {
     const { uuid, username, email } = payload;
 
     if (!uuid) {
-      console.warn("[auth-service] Missing uuid in message payload, skipping message");
+      console.warn(
+        "[auth-service] Missing uuid in message payload, skipping message",
+      );
       return;
     }
 
