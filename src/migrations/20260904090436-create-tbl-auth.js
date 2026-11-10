@@ -1,13 +1,17 @@
-'use strict';
+"use strict";
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('tbl_users', {
+    await queryInterface.createTable("tbl_users", {
       uuid: {
         allowNull: false,
         primaryKey: true,
         type: Sequelize.UUID,
-        defaultValue: Sequelize.UUIDV4
+        defaultValue: Sequelize.UUIDV4,
+      },
+      event_type: {
+        type: Sequelize.STRING,
+        allowNull: false,
       },
       username: {
         type: Sequelize.STRING,
@@ -16,40 +20,40 @@ module.exports = {
       email: {
         type: Sequelize.STRING,
         allowNull: false,
-        unique: true
+        unique: true,
       },
       password: {
         type: Sequelize.STRING,
         allowNull: false,
       },
       provider: {
-        type: Sequelize.ENUM(['manual', 'google', 'facebook', 'twitter']),
+        type: Sequelize.ENUM(["manual", "google", "facebook", "twitter"]),
         allowNull: false,
-        defaultValue: 'manual'
+        defaultValue: "manual",
       },
       role: {
-        type: Sequelize.ENUM(['admin', 'user']),
+        type: Sequelize.ENUM(["SUPERADMIN", "ADMIN", "USER", "GUEST"]),
         allowNull: false,
-        defaultValue: 'user'
+        defaultValue: "GUEST",
       },
       isActive: {
         type: Sequelize.BOOLEAN,
         allowNull: false,
-        defaultValue: false
+        defaultValue: false,
       },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,
-        defaultValue: Sequelize.fn('NOW')
+        defaultValue: Sequelize.fn("NOW"),
       },
       updatedAt: {
         allowNull: false,
         type: Sequelize.DATE,
-        defaultValue: Sequelize.fn('NOW')
-      }
+        defaultValue: Sequelize.fn("NOW"),
+      },
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('tbl_users');
-  }
+    await queryInterface.dropTable("tbl_users");
+  },
 };

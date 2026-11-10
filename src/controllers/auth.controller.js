@@ -108,8 +108,10 @@ const ActivationController = async (req, res, next) => {
 
     await deliverMessageData(["user_activated", "gis_user_activated"], {
       uuid: decoded.uuid,
+      event_type: "EVENT_ACTIVATION_USER",
       username: user ? user.username : "",
       email: user ? user.email : "",
+      role: user ? user.role : "GUEST",
     });
 
     return res
