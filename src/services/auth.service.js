@@ -15,6 +15,7 @@ const RegsiterService = async (data) => {
   let { username, email, password, role, isActive } = data;
   let hashedPassword = await hashPassword(password);
   let userData = await TblUsers.create({
+    event_type: "EVENT_REGISTER_AUTH_SERVICE",
     username,
     email,
     password: hashedPassword,
@@ -137,10 +138,8 @@ const UpdatePasswordUserService = async ({ token, password }) => {
     { where: { uuid: decoded.uuid } },
   );
 
-  // Hapus token reset dari Redis agar tidak bisa digunakan kembali (one-time use)
   await RedisClient.del(redisKey);
 
-  // Invalidate refresh token session pengguna jika ada
   await RedisClient.del(`refresh_token:${decoded.uuid}`);
 
   return {

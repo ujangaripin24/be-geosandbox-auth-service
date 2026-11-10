@@ -1,7 +1,5 @@
-'use strict';
-const {
-  Model
-} = require('sequelize');
+"use strict";
+const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class TblUsers extends Model {
     /**
@@ -13,46 +11,53 @@ module.exports = (sequelize, DataTypes) => {
       // define association here
     }
   }
-  TblUsers.init({
-    uuid: {
-      type: DataTypes.UUID,
-      defaultValue: DataTypes.UUIDV4,
-      primaryKey: true,
-      allowNull: false
+  TblUsers.init(
+    {
+      uuid: {
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV4,
+        primaryKey: true,
+        allowNull: false,
+      },
+      event_type: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      username: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      email: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        unique: true,
+      },
+      password: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      provider: {
+        type: DataTypes.ENUM("manual", "google", "facebook", "twitter"),
+        allowNull: false,
+        defaultValue: "manual",
+      },
+      role: {
+        type: DataTypes.ENUM("SUPERADMIN", "ADMIN", "USER", "GUEST"),
+        allowNull: false,
+        defaultValue: "GUEST",
+      },
+      isActive: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false,
+      },
     },
-    username: {
-      type: DataTypes.STRING,
-      allowNull: false
+    {
+      sequelize,
+      modelName: "TblUsers",
+      tableName: "tbl_users",
+      timestamps: true,
     },
-    email: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      unique: true
-    },
-    password: {
-      type: DataTypes.STRING,
-      allowNull: false
-    },
-    provider: {
-      type: DataTypes.ENUM('manual', 'google', 'facebook', 'twitter'),
-      allowNull: false,
-      defaultValue: 'manual'
-    },
-    role: {
-      type: DataTypes.ENUM('admin', 'user'),
-      allowNull: false,
-      defaultValue: 'user'
-    },
-    isActive: {
-      type: DataTypes.BOOLEAN,
-      allowNull: false,
-      defaultValue: false
-    }
-  }, {
-    sequelize,
-    modelName: 'TblUsers',
-    tableName: 'tbl_users',
-    timestamps: true
-  });
+  );
   return TblUsers;
 };

@@ -16,7 +16,7 @@ const consumeUserUpdatedQueue = async () => {
 
     const payload = JSON.parse(msg.content.toString());
     console.log("[auth-service] Received 'user_update' payload:", payload);
-    const { uuid, username, email, role } = payload;
+    const { uuid, username, email, role, event_type } = payload;
 
     if (!uuid) {
       console.warn(
@@ -31,6 +31,7 @@ const consumeUserUpdatedQueue = async () => {
       if (username) updateData.username = username;
       if (email) updateData.email = email;
       if (role) updateData.role = role;
+      if (event_type) updateData.event_type = event_type;
       if (Object.keys(updateData).length > 0) {
         await user.update(updateData);
         console.log(

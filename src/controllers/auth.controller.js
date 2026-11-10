@@ -90,7 +90,10 @@ const ActivationController = async (req, res, next) => {
     const user = await TblUsers.findOne({ where: { uuid: decoded.uuid } });
 
     const [updatedCount] = await TblUsers.update(
-      { isActive: true },
+      {
+        isActive: true,
+        event_type: "EVENT_ACTIVATION_AUTH_SERVICE",
+      },
       {
         where: { uuid: decoded.uuid },
       },
