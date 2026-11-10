@@ -16,6 +16,9 @@ const {
   listenUserUpdatedQueue,
 } = require("./pkg/message-broker/user.subscriber");
 const cookieParser = require("cookie-parser");
+const {
+  listenCompanyUpdateQueue,
+} = require("./pkg/message-broker/company.subscriber");
 
 dotenv.config();
 
@@ -86,6 +89,7 @@ app.listen(process.env.APP_PORT, async () => {
     await dataCache.connect();
     await messageBroker.connectRabbitMQ();
     await listenUserUpdatedQueue();
+    await listenCompanyUpdateQueue();
   } catch (error) {
     console.error("Unable to start server:");
     console.error(error.message);
