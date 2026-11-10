@@ -43,6 +43,67 @@ const consumeCompanyRecivedQueue = async () => {
   });
 };
 
+const consumeCompanyDeletedQueue = async () => {
+  await reciverMessageData(["gis_company_deleted_queue"], async (msg) => {
+    if (!msg) return;
+
+    const payload = JSON.parse(msg.content.toString());
+    console.log("[auth-service] Recevied 'company_deleted' paylaod: ", payload);
+
+    const { uuid } = payload;
+
+    if (!uuid) {
+      console.warn(
+        "[auth-service] Missing uuid in message payload, skipping message",
+      );
+      return;
+    }
+
+    const company = await TblCompany.findOne({ where: { uuid } });
+    if (company) {
+      await company.destroy();
+      console.log("[auth-service] Deleted company:", { uuid });
+    } else {
+      console.warn(
+        `[auth-service] TblCompany record for uuid ${uuid} not found.`,
+      );
+    }
+  });
+};
+
+const consumeCompanyUpdatedQueue = async () => {
+  await reciverMessageData(["gis_company_updated_queue"], async (msg) => {
+    if (!msg) return;
+
+    const payload = JSON.parse(msg.content.toString());
+    console.log("[auth-service] Recevied 'company_update' paylaod: ", payload);
+
+    const { uuid, event_type, name } = payload;
+
+    if (!uuid) {
+      console.warn(
+        "[auth-service] Missing uuid in message payload, skipping message",
+      );
+      return;
+    }
+
+    const company = await TblCompany.findOne({ where: { uuid } });
+    if (company) {
+      const updateData = {};
+      if (name) updateData.name = name;
+      if (event_type) updateData.event_type = event_type;
+      if (Object.keys(updateData).length > 0) {
+        await company.update(updateData);
+        console.log("[auth-service] Updated company:", updateData);
+      }
+    } else {
+      console.warn(
+        `[auth-service] TblCompany record for uuid ${uuid} not found.`,
+      );
+    }
+  });
+};
+
 /**
  * Listens to 'user_update' queue from RabbitMQ
  * and updates username/email in TblCompany record in auth database.
@@ -54,9 +115,13 @@ const listenCompanyUpdateQueue = async () => {
 
   const startListener = async () => {
     await consumeCompanyRecivedQueue();
+    await consumeCompanyDeletedQueue();
+    await consumeCompanyUpdatedQueue();
     setTimeout(async () => {
       try {
         await consumeCompanyRecivedQueue();
+        await consumeCompanyDeletedQueue();
+        await consumeCompanyUpdatedQueue();
       } catch (dlqErr) {
         console.error("[auth-service] Auto DLQ replay error:", dlqErr.message);
       }
