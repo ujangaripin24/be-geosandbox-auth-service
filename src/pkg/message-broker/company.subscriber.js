@@ -3,16 +3,22 @@ const {
   getChannel,
 } = require("../../config/message-broker.config");
 const { TblCompany } = require("../../models");
-const { reciverMessageData } = require("./message-broker.pkg");
+const {
+  reciverMessageData,
+  reprocessDLQMessages,
+} = require("./message-broker.pkg");
 
 let consumerRegistered = false;
 
-const consumeCompanyRecivedQueue = async () => {
-  await reciverMessageData(["gis_company_updated_queue"], async (msg) => {
+const consumeCompanyCreatedQueue = async () => {
+  await reciverMessageData(["gis_company_created_queue"], async (msg) => {
     if (!msg) return;
 
     const payload = JSON.parse(msg.content.toString());
-    console.log("[auth-service] Recevied 'company_update' paylaod: ", payload);
+    console.log(
+      "[auth-service] Received 'gis_company_created_queue' payload:",
+      payload,
+    );
 
     const { uuid, event_type, name } = payload;
 
@@ -24,10 +30,11 @@ const consumeCompanyRecivedQueue = async () => {
     }
 
     const company = await TblCompany.findOne({ where: { uuid } });
+
     if (!company) {
       await TblCompany.create({
         uuid,
-        event_type,
+        event_type: event_type,
         name,
       });
       console.log("[auth-service] Created company:", {
@@ -35,6 +42,47 @@ const consumeCompanyRecivedQueue = async () => {
         event_type,
         name,
       });
+    } else {
+      console.warn(
+        `[auth-service] TblCompany record for uuid ${uuid} already exists.`,
+      );
+    }
+  });
+};
+
+const consumeCompanyUpdatedQueue = async () => {
+  await reciverMessageData(["gis_company_updated_queue"], async (msg) => {
+    if (!msg) return;
+
+    const payload = JSON.parse(msg.content.toString());
+    console.log(
+      "[auth-service] Received 'gis_company_updated_queue' payload:",
+      payload,
+    );
+
+    const { uuid, event_type, name } = payload;
+
+    if (!uuid) {
+      console.warn(
+        "[auth-service] Missing uuid in message payload, skipping message",
+      );
+      return;
+    }
+
+    const company = await TblCompany.findOne({ where: { uuid } });
+
+    if (company) {
+      const updateData = {};
+      if (name) updateData.name = name;
+      if (event_type) updateData.event_type = event_type;
+
+      if (Object.keys(updateData).length > 0) {
+        await company.update(updateData);
+        console.log("[auth-service] Updated company:", {
+          uuid,
+          ...updateData,
+        });
+      }
     } else {
       console.warn(
         `[auth-service] TblCompany record for uuid ${uuid} not found.`,
@@ -48,7 +96,10 @@ const consumeCompanyDeletedQueue = async () => {
     if (!msg) return;
 
     const payload = JSON.parse(msg.content.toString());
-    console.log("[auth-service] Recevied 'company_deleted' paylaod: ", payload);
+    console.log(
+      "[auth-service] Received 'gis_company_deleted_queue' payload:",
+      payload,
+    );
 
     const { uuid } = payload;
 
@@ -60,43 +111,9 @@ const consumeCompanyDeletedQueue = async () => {
     }
 
     const company = await TblCompany.findOne({ where: { uuid } });
-    console.log("[auth-service] Deleted company:", { uuid });
-    // if (company) {
-    //   await company.destroy();
-    //   console.log("[auth-service] Deleted company:", { uuid });
-    // } else {
-    //   console.warn(
-    //     `[auth-service] TblCompany record for uuid ${uuid} not found.`,
-    //   );
-    // }
-  });
-};
-
-const consumeCompanyUpdatedQueue = async () => {
-  await reciverMessageData(["gis_company_updated_queue"], async (msg) => {
-    if (!msg) return;
-
-    const payload = JSON.parse(msg.content.toString());
-    console.log("[auth-service] Recevied 'company_update' paylaod: ", payload);
-
-    const { uuid, event_type, name } = payload;
-
-    if (!uuid) {
-      console.warn(
-        "[auth-service] Missing uuid in message payload, skipping message",
-      );
-      return;
-    }
-
-    const company = await TblCompany.findOne({ where: { uuid } });
     if (company) {
-      const updateData = {};
-      if (name) updateData.name = name;
-      if (event_type) updateData.event_type = event_type;
-      if (Object.keys(updateData).length > 0) {
-        await company.update(updateData);
-        console.log("[auth-service] Updated company:", updateData);
-      }
+      await company.destroy();
+      console.log("[auth-service] Deleted company:", { uuid });
     } else {
       console.warn(
         `[auth-service] TblCompany record for uuid ${uuid} not found.`,
@@ -106,8 +123,8 @@ const consumeCompanyUpdatedQueue = async () => {
 };
 
 /**
- * Listens to 'user_update' queue from RabbitMQ
- * and updates username/email in TblCompany record in auth database.
+ * Listens to 'gis_company_created_queue', 'gis_company_updated_queue', and 'gis_company_deleted_queue'
+ * from RabbitMQ and syncs TblCompany records in auth database.
  * Also attempts to reprocess any DLQ messages when listener starts.
  */
 const listenCompanyUpdateQueue = async () => {
@@ -115,14 +132,14 @@ const listenCompanyUpdateQueue = async () => {
   consumerRegistered = true;
 
   const startListener = async () => {
-    await consumeCompanyRecivedQueue();
-    await consumeCompanyDeletedQueue();
+    await consumeCompanyCreatedQueue();
     await consumeCompanyUpdatedQueue();
+    await consumeCompanyDeletedQueue();
     setTimeout(async () => {
       try {
-        await consumeCompanyRecivedQueue();
-        await consumeCompanyDeletedQueue();
-        await consumeCompanyUpdatedQueue();
+        await reprocessDLQMessages("gis_company_created_queue");
+        await reprocessDLQMessages("gis_company_updated_queue");
+        await reprocessDLQMessages("gis_company_deleted_queue");
       } catch (dlqErr) {
         console.error("[auth-service] Auto DLQ replay error:", dlqErr.message);
       }
