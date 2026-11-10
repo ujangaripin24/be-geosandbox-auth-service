@@ -60,14 +60,15 @@ const consumeCompanyDeletedQueue = async () => {
     }
 
     const company = await TblCompany.findOne({ where: { uuid } });
-    if (company) {
-      await company.destroy();
-      console.log("[auth-service] Deleted company:", { uuid });
-    } else {
-      console.warn(
-        `[auth-service] TblCompany record for uuid ${uuid} not found.`,
-      );
-    }
+    console.log("[auth-service] Deleted company:", { uuid });
+    // if (company) {
+    //   await company.destroy();
+    //   console.log("[auth-service] Deleted company:", { uuid });
+    // } else {
+    //   console.warn(
+    //     `[auth-service] TblCompany record for uuid ${uuid} not found.`,
+    //   );
+    // }
   });
 };
 
