@@ -11,12 +11,12 @@ const {
 let consumerRegistered = false;
 
 const consumeCompanyCreatedQueue = async () => {
-  await reciverMessageData(["gis_company_created_queue"], async (msg) => {
+  await reciverMessageData(["auth_company_created_queue"], async (msg) => {
     if (!msg) return;
 
     const payload = JSON.parse(msg.content.toString());
     console.log(
-      "[auth-service] Received 'gis_company_created_queue' payload:",
+      "[auth-service] Received 'auth_company_created_queue' payload:",
       payload,
     );
 
@@ -51,12 +51,12 @@ const consumeCompanyCreatedQueue = async () => {
 };
 
 const consumeCompanyUpdatedQueue = async () => {
-  await reciverMessageData(["gis_company_updated_queue"], async (msg) => {
+  await reciverMessageData(["auth_company_updated_queue"], async (msg) => {
     if (!msg) return;
 
     const payload = JSON.parse(msg.content.toString());
     console.log(
-      "[auth-service] Received 'gis_company_updated_queue' payload:",
+      "[auth-service] Received 'auth_company_updated_queue' payload:",
       payload,
     );
 
@@ -85,19 +85,29 @@ const consumeCompanyUpdatedQueue = async () => {
       }
     } else {
       console.warn(
-        `[auth-service] TblCompany record for uuid ${uuid} not found.`,
+        `[auth-service] TblCompany record for uuid ${uuid} not found. Auto-creating record.`,
       );
+      await TblCompany.create({
+        uuid,
+        event_type: event_type || "EVENT_UPDATE_COMPANY_USER_SERVICE",
+        name: name || "",
+      });
+      console.log("[auth-service] Auto-created company:", {
+        uuid,
+        event_type,
+        name,
+      });
     }
   });
 };
 
 const consumeCompanyDeletedQueue = async () => {
-  await reciverMessageData(["gis_company_deleted_queue"], async (msg) => {
+  await reciverMessageData(["auth_company_deleted_queue"], async (msg) => {
     if (!msg) return;
 
     const payload = JSON.parse(msg.content.toString());
     console.log(
-      "[auth-service] Received 'gis_company_deleted_queue' payload:",
+      "[auth-service] Received 'auth_company_deleted_queue' payload:",
       payload,
     );
 
@@ -123,7 +133,7 @@ const consumeCompanyDeletedQueue = async () => {
 };
 
 /**
- * Listens to 'gis_company_created_queue', 'gis_company_updated_queue', and 'gis_company_deleted_queue'
+ * Listens to 'auth_company_created_queue', 'auth_company_updated_queue', and 'auth_company_deleted_queue'
  * from RabbitMQ and syncs TblCompany records in auth database.
  * Also attempts to reprocess any DLQ messages when listener starts.
  */
@@ -137,9 +147,9 @@ const listenCompanyUpdateQueue = async () => {
     await consumeCompanyDeletedQueue();
     setTimeout(async () => {
       try {
-        await reprocessDLQMessages("gis_company_created_queue");
-        await reprocessDLQMessages("gis_company_updated_queue");
-        await reprocessDLQMessages("gis_company_deleted_queue");
+        await reprocessDLQMessages("auth_company_created_queue");
+        await reprocessDLQMessages("auth_company_updated_queue");
+        await reprocessDLQMessages("auth_company_deleted_queue");
       } catch (dlqErr) {
         console.error("[auth-service] Auto DLQ replay error:", dlqErr.message);
       }
