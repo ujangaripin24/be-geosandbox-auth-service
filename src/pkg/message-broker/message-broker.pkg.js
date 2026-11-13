@@ -1,4 +1,11 @@
+const crypto = require("crypto");
 const { getChannel } = require("../../config/message-broker.config");
+
+const MAX_RETRIES = 3;
+const RETRY_DELAY_MS = 3000;
+const MAX_DLQ_REPLAYS = 2;
+
+const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 /**
  * Helper to ensure DLX and DLQ exist for a target queue
@@ -41,7 +48,16 @@ const deliverMessageData = async (queueName, payload) => {
     const queueNames = Array.isArray(queueName) ? queueName : [queueName];
     for (const targetQueue of queueNames) {
       await setupDLQForQueue(channel, targetQueue);
-      channel.sendToQueue(targetQueue, messageBuffer, { persistent: true });
+      channel.sendToQueue(targetQueue, messageBuffer, {
+        persistent: true,
+        contentType: "application/json",
+        messageId: crypto.randomUUID(),
+        timestamp: Math.floor(Date.now() / 1000),
+        headers: {
+          "x-retry-count": 0,
+          "x-dlq-replay-count": 0,
+        },
+      });
       console.log(`[RabbitMQ] Message delivered to queue '${targetQueue}'`);
     }
     return true;
@@ -55,9 +71,9 @@ const deliverMessageData = async (queueName, payload) => {
 };
 
 /**
- * Consume messages with Manual ACK and automatic Dead-Lettering on error
+ * Consume messages with Manual ACK, Bounded Auto-Retry, and Dead-Lettering on max retries
  * @param {string|string[]} queueName - Queue Name(s)
- * @param {function} callback - Callback function accepting (msg, payload)
+ * @param {function} callback - Callback function accepting (msg)
  */
 const reciverMessageData = async (queueName, callback) => {
   try {
@@ -80,16 +96,39 @@ const reciverMessageData = async (queueName, callback) => {
             await callback(msg);
             channel.ack(msg);
           } catch (err) {
-            console.error(
-              `[RabbitMQ] Error processing message in '${targetQueue}': ${err.message}. Moving to DLQ '${dlqName}'`,
-            );
-            // Move message to DLQ (requeue: false)
-            channel.nack(msg, false, false);
+            const headers = msg.properties?.headers || {};
+            const retryCount = Number(headers["x-retry-count"] || 0);
+
+            if (retryCount < MAX_RETRIES) {
+              const nextRetry = retryCount + 1;
+              console.warn(
+                `[RabbitMQ] Error processing '${targetQueue}' (Retry ${nextRetry}/${MAX_RETRIES}): ${err.message}. Retrying in ${RETRY_DELAY_MS}ms...`,
+              );
+              await delay(RETRY_DELAY_MS);
+              channel.sendToQueue(targetQueue, msg.content, {
+                ...msg.properties,
+                persistent: true,
+                headers: {
+                  ...headers,
+                  "x-retry-count": nextRetry,
+                  "x-last-error": err.message,
+                },
+              });
+              channel.ack(msg);
+            } else {
+              console.error(
+                `[RabbitMQ] Max retries (${MAX_RETRIES}) reached in '${targetQueue}': ${err.message}. Moving to DLQ '${dlqName}'`,
+              );
+              // Move message to DLQ (requeue: false)
+              channel.nack(msg, false, false);
+            }
           }
         },
         { noAck: false },
       );
-      console.log(`[RabbitMQ] Waiting for messages on queue '${targetQueue}' (DLQ: '${dlqName}')`);
+      console.log(
+        `[RabbitMQ] Waiting for messages on queue '${targetQueue}' (DLQ: '${dlqName}')`,
+      );
     }
     return true;
   } catch (error) {
@@ -102,7 +141,7 @@ const reciverMessageData = async (queueName, callback) => {
 };
 
 /**
- * Reprocess / Replay messages from DLQ back to the main queue
+ * Reprocess / Replay messages from DLQ back to the main queue (with Poison Message guard)
  * @param {string} targetQueue - Main Queue Name
  */
 const reprocessDLQMessages = async (targetQueue) => {
@@ -119,7 +158,26 @@ const reprocessDLQMessages = async (targetQueue) => {
       const msg = await channel.get(dlqName, { noAck: false });
       if (!msg) break;
 
-      channel.sendToQueue(targetQueue, msg.content, { persistent: true });
+      const headers = msg.properties?.headers || {};
+      const replayCount = Number(headers["x-dlq-replay-count"] || 0);
+
+      if (replayCount >= MAX_DLQ_REPLAYS) {
+        console.warn(
+          `[RabbitMQ DLQ Replay] Skipping poison message in '${dlqName}' (exceeded max DLQ replays: ${MAX_DLQ_REPLAYS})`,
+        );
+        channel.ack(msg);
+        continue;
+      }
+
+      channel.sendToQueue(targetQueue, msg.content, {
+        ...msg.properties,
+        persistent: true,
+        headers: {
+          ...headers,
+          "x-retry-count": 0,
+          "x-dlq-replay-count": replayCount + 1,
+        },
+      });
       channel.ack(msg);
       count++;
     }
@@ -142,3 +200,4 @@ module.exports = {
   reciverMessageData,
   reprocessDLQMessages,
 };
+
